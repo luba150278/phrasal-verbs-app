@@ -1864,6 +1864,27 @@
             const d = modals.value.verb.data;
             if (!d.verb || !d.translation || !d.topicId) return;
 
+            const inputVerbClean = d.verb.trim();
+            const inputVerbLower = inputVerbClean.toLowerCase();
+
+            // Check for duplicates (excluding the verb being edited right now)
+            const isDuplicate = verbs.value.some((v) => {
+              const isDifferentId = modals.value.verb.isEdit
+                ? v.id !== modals.value.verb.editId
+                : true;
+              return (
+                isDifferentId && v.verb.trim().toLowerCase() === inputVerbLower
+              );
+            });
+
+            if (isDuplicate) {
+              showNotification(
+                'Дієслово «' + inputVerbClean + '» вже є у списку!',
+                'error',
+              );
+              return; // Prevent saving
+            }
+
             if (modals.value.verb.isEdit) {
               // Update
               const index = verbs.value.findIndex(
@@ -1872,10 +1893,10 @@
               if (index !== -1) {
                 verbs.value[index] = {
                   ...verbs.value[index],
-                  verb: d.verb,
-                  translation: d.translation,
+                  verb: inputVerbClean,
+                  translation: d.translation.trim(),
                   topicId: d.topicId,
-                  example: d.example,
+                  example: d.example ? d.example.trim() : '',
                 };
                 showNotification('Дієслово успішно оновлено!');
               }
@@ -1883,10 +1904,10 @@
               // Create New
               verbs.value.push({
                 id: 'v_' + Date.now(),
-                verb: d.verb,
-                translation: d.translation,
+                verb: inputVerbClean,
+                translation: d.translation.trim(),
                 topicId: d.topicId,
-                example: d.example,
+                example: d.example ? d.example.trim() : '',
                 status: 'new',
                 repetitions: 0,
                 lastReviewed: null,
