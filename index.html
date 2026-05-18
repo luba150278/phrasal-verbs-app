@@ -115,7 +115,7 @@
               </h1>
               <p class="text-indigo-100 text-base sm:text-lg mb-6">
                 Інтервальне повторення допоможе запам’ятати складні англійські
-                дієслова назавжди. Оберіть теми та розпочніть нову сесію з 10
+                дієслова назавжди. Оберіть темы та розпочніть нову сесію з 10
                 дієслів.
               </p>
               <button
@@ -1867,14 +1867,15 @@
             const inputVerbClean = d.verb.trim();
             const inputVerbLower = inputVerbClean.toLowerCase();
 
-            // Check for duplicates (excluding the verb being edited right now)
+            // Check for duplicates (excluding the verb being edited right now by matching IDs as strings)
             const isDuplicate = verbs.value.some((v) => {
-              const isDifferentId = modals.value.verb.isEdit
-                ? v.id !== modals.value.verb.editId
-                : true;
-              return (
-                isDifferentId && v.verb.trim().toLowerCase() === inputVerbLower
-              );
+              if (
+                modals.value.verb.isEdit &&
+                String(v.id) === String(modals.value.verb.editId)
+              ) {
+                return false; // Skip duplicate check for the word we are currently editing
+              }
+              return v.verb.trim().toLowerCase() === inputVerbLower;
             });
 
             if (isDuplicate) {
@@ -1888,7 +1889,7 @@
             if (modals.value.verb.isEdit) {
               // Update
               const index = verbs.value.findIndex(
-                (v) => v.id === modals.value.verb.editId,
+                (v) => String(v.id) === String(modals.value.verb.editId),
               );
               if (index !== -1) {
                 verbs.value[index] = {
@@ -2102,7 +2103,9 @@
 
             sessionGrades.value[grade]++;
 
-            const index = verbs.value.findIndex((v) => v.id === currentVerb.id);
+            const index = verbs.value.findIndex(
+              (v) => String(v.id) === String(currentVerb.id),
+            );
             if (index !== -1) {
               verbs.value[index].status = grade;
               verbs.value[index].lastReviewed = new Date().toISOString();
