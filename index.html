@@ -1,606 +1,473 @@
 <!doctype html>
+:Smart Phrasal Verbs з тестами:index.html
+<!doctype html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Phrasal Verbs - Інтервальне Повторення</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>"
-    />
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Vue.js 3 Production CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-      /* Custom Flashcard Flip Animations */
-      .perspective-1000 {
-        perspective: 1000px;
-      }
-      .preserve-3d {
-        transform-style: preserve-3d;
-      }
-      .backface-hidden {
-        backface-visibility: hidden;
-      }
-      .rotate-y-180 {
-        transform: rotateY(180deg);
-      }
-    </style>
-  </head>
-  <body class="bg-slate-50 text-slate-800 min-h-screen">
-    <div id="app" class="min-h-screen flex flex-col" v-cloak>
-      <!-- Top Navigation -->
-      <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center justify-between h-16">
-            <!-- Logo -->
-            <div
-              class="flex items-center space-x-3 cursor-pointer"
-              @click="goToDashboard"
-            >
-              <div class="bg-indigo-50/10 p-2 rounded-xl text-white">
-                <i class="fa-solid fa-brain text-xl text-indigo-200"></i>
-              </div>
-              <span
-                class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-200 to-white bg-clip-text text-transparent"
-              >
-                VerboInterval
-              </span>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Phrasal Verbs - Інтервальне Повторення</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Vue.js 3 Production CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Custom Flashcard Flip Animations */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+  <div id="app" class="min-h-screen flex flex-col" v-cloak>
+    <!-- Top Navigation -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3 cursor-pointer" @click="goToDashboard">
+            <div class="bg-indigo-50/10 p-2 rounded-xl text-white">
+              <i class="fa-solid fa-brain text-xl text-indigo-200"></i>
             </div>
-            <!-- Nav Links -->
-            <nav class="hidden md:flex space-x-1">
-              <button @click="goToDashboard" :class="dashboardTabClass">
-                <i class="fa-solid fa-house mr-2"></i>Панель
-              </button>
-              <button @click="goToVerbs" :class="verbsTabClass">
-                <i class="fa-solid fa-list mr-2"></i>Дієслова
-              </button>
-              <button @click="goToTopics" :class="topicsTabClass">
-                <i class="fa-solid fa-tags mr-2"></i>Теми
-              </button>
-            </nav>
-            <!-- Quick Stats & Settings -->
-            <div class="flex items-center space-x-3">
-              <span
-                class="bg-indigo-800/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-200 border border-indigo-700/50 hidden sm:inline-block"
-              >
-                <i
-                  class="fa-solid fa-graduation-cap text-indigo-400 mr-1.5"
-                ></i>
-                {{ totalVerbsCount }} дієслів
-              </span>
-              <button
-                @click="openSettingsModal"
-                class="p-2 text-indigo-200 hover:text-white hover:bg-indigo-800/60 rounded-xl transition-all"
-                title="Налаштування та Синхронізація"
-              >
-                <i class="fa-solid fa-gear text-lg"></i>
-              </button>
+            <span
+              class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-200 to-white bg-clip-text text-transparent">
+              VerboInterval
+            </span>
+          </div>
+          <!-- Nav Links -->
+          <nav class="hidden md:flex space-x-1">
+            <button @click="goToDashboard" :class="dashboardTabClass">
+              <i class="fa-solid fa-house mr-2"></i>Панель
+            </button>
+            <button @click="goToVerbs" :class="verbsTabClass">
+              <i class="fa-solid fa-list mr-2"></i>Дієслова
+            </button>
+            <button @click="goToTopics" :class="topicsTabClass">
+              <i class="fa-solid fa-tags mr-2"></i>Теми
+            </button>
+          </nav>
+          <!-- Quick Stats & Settings -->
+          <div class="flex items-center space-x-3">
+            <span
+              class="bg-indigo-800/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-200 border border-indigo-700/50 hidden sm:inline-block">
+              <i class="fa-solid fa-graduation-cap text-indigo-400 mr-1.5"></i>
+              {{ totalVerbsCount }} дієслів
+            </span>
+            <button @click="openSettingsModal"
+              class="p-2 text-indigo-200 hover:text-white hover:bg-indigo-800/60 rounded-xl transition-all"
+              title="Налаштування та Синхронізація">
+              <i class="fa-solid fa-gear text-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- DASHBOARD VIEW -->
+      <div v-if="isDashboardTab" class="space-y-8">
+        <!-- Hero banner and setup for quick session -->
+        <div
+          class="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-indigo-500/20 rounded-full blur-2xl"></div>
+          <div class="absolute right-20 top-5 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"></div>
+
+          <div class="relative z-10 max-w-2xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
+              Прокачайте ваші Phrasal Verbs!
+            </h1>
+            <p class="text-indigo-100 text-base sm:text-lg mb-6">
+              Інтервальне повторення допоможе запам’ятати складні англійські
+              дієслова назавжди. Оберіть теми та зручний режим тренування.
+            </p>
+            <button @click="openStudySetup"
+              class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-900/30 flex items-center space-x-2 transition-all transform hover:-translate-y-0.5">
+              <i class="fa-solid fa-play text-lg"></i>
+              <span>Почати повторення (10 слів)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dashboard Statistics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+            <div class="p-3.5 bg-indigo-50 text-indigo-600 rounded-xl">
+              <i class="fa-solid fa-book-open text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                Всього дієслів
+              </div>
+              <div class="text-2xl font-bold text-slate-800">
+                {{ totalVerbsCount }}
+              </div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+            <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl">
+              <i class="fa-solid fa-circle-check text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                Засвоєно (Легкі)
+              </div>
+              <div class="text-2xl font-bold text-slate-800">
+                {{ masteredCount }}
+              </div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+            <div class="p-3.5 bg-amber-50 text-amber-600 rounded-xl">
+              <i class="fa-solid fa-arrows-spin text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                В процесі (Середні)
+              </div>
+              <div class="text-2xl font-bold text-slate-800">
+                {{ learningCount }}
+              </div>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4">
+            <div class="p-3.5 bg-rose-50 text-rose-600 rounded-xl">
+              <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400 font-medium uppercase tracking-wider">
+                Потребують повторення
+              </div>
+              <div class="text-2xl font-bold text-slate-800">
+                {{ hardCount }}
+              </div>
             </div>
           </div>
         </div>
-      </header>
 
-      <main
-        class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
-      >
-        <!-- DASHBOARD VIEW -->
-        <div v-if="isDashboardTab" class="space-y-8">
-          <!-- Hero banner and setup for quick session -->
-          <div
-            class="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
-          >
-            <div
-              class="absolute -right-10 -bottom-10 w-44 h-44 bg-indigo-500/20 rounded-full blur-2xl"
-            ></div>
-            <div
-              class="absolute right-20 top-5 w-32 h-32 bg-purple-500/10 rounded-full blur-xl"
-            ></div>
-
-            <div class="relative z-10 max-w-2xl">
-              <h1
-                class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2"
-              >
-                Прокачайте ваші Phrasal Verbs!
-              </h1>
-              <p class="text-indigo-100 text-base sm:text-lg mb-6">
-                Інтервальне повторення допоможе запам’ятати складні англійські
-                дієслова назавжди. Оберіть темы та розпочніть нову сесію з 10
-                дієслів.
-              </p>
-              <button
-                @click="openStudySetup"
-                class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-900/30 flex items-center space-x-2 transition-all transform hover:-translate-y-0.5"
-              >
-                <i class="fa-solid fa-play text-lg"></i>
-                <span>Почати повторення (10 слів)</span>
+        <!-- Two Column Dashboard Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Topics summary & Quick Action -->
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-1 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="font-bold text-lg text-slate-800">Активні теми</h2>
+              <button @click="goToTopics" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                Всі теми
               </button>
             </div>
-          </div>
 
-          <!-- Dashboard Statistics Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div
-              class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4"
-            >
-              <div class="p-3.5 bg-indigo-50 text-indigo-600 rounded-xl">
-                <i class="fa-solid fa-book-open text-2xl"></i>
-              </div>
-              <div>
-                <div
-                  class="text-xs text-slate-400 font-medium uppercase tracking-wider"
-                >
-                  Всього дієслів
-                </div>
-                <div class="text-2xl font-bold text-slate-800">
-                  {{ totalVerbsCount }}
-                </div>
-              </div>
-            </div>
-            <div
-              class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4"
-            >
-              <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl">
-                <i class="fa-solid fa-circle-check text-2xl"></i>
-              </div>
-              <div>
-                <div
-                  class="text-xs text-slate-400 font-medium uppercase tracking-wider"
-                >
-                  Засвоєно (Легкі)
-                </div>
-                <div class="text-2xl font-bold text-slate-800">
-                  {{ masteredCount }}
-                </div>
-              </div>
-            </div>
-            <div
-              class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4"
-            >
-              <div class="p-3.5 bg-amber-50 text-amber-600 rounded-xl">
-                <i class="fa-solid fa-arrows-spin text-2xl"></i>
-              </div>
-              <div>
-                <div
-                  class="text-xs text-slate-400 font-medium uppercase tracking-wider"
-                >
-                  В процесі (Середні)
-                </div>
-                <div class="text-2xl font-bold text-slate-800">
-                  {{ learningCount }}
-                </div>
-              </div>
-            </div>
-            <div
-              class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center space-x-4"
-            >
-              <div class="p-3.5 bg-rose-50 text-rose-600 rounded-xl">
-                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-              </div>
-              <div>
-                <div
-                  class="text-xs text-slate-400 font-medium uppercase tracking-wider"
-                >
-                  Потребують повторення
-                </div>
-                <div class="text-2xl font-bold text-slate-800">
-                  {{ hardCount }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Two Column Dashboard Layout -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Topics summary & Quick Action -->
-            <div
-              class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-1 space-y-4"
-            >
-              <div class="flex items-center justify-between">
-                <h2 class="font-bold text-lg text-slate-800">Активні теми</h2>
-                <button
-                  @click="goToTopics"
-                  class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                >
-                  Всі теми
-                </button>
-              </div>
-
-              <div class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                <div
-                  v-for="topic in topics"
-                  :key="topic.id"
-                  class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-all cursor-pointer"
-                  @click="openStudyWithTopic(topic.id)"
-                >
-                  <div class="flex items-center space-x-3 min-w-0">
-                    <span
-                      class="text-indigo-600 bg-indigo-50 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0"
-                    >
-                      {{ getTopicVerbCount(topic.id) }}
-                    </span>
-                    <div class="truncate">
-                      <div
-                        class="font-semibold text-sm text-slate-700 truncate"
-                      >
-                        {{ topic.name }}
-                      </div>
-                      <div class="text-xs text-slate-400 truncate">
-                        {{ getTopicDescription(topic) }}
-                      </div>
+            <div class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+              <div v-for="topic in topics" :key="topic.id"
+                class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-all cursor-pointer"
+                @click="openStudyWithTopic(topic.id)">
+                <div class="flex items-center space-x-3 min-w-0">
+                  <span
+                    class="text-indigo-600 bg-indigo-50 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    {{ getTopicVerbCount(topic.id) }}
+                  </span>
+                  <div class="truncate">
+                    <div class="font-semibold text-sm text-slate-700 truncate">
+                      {{ topic.name }}
+                    </div>
+                    <div class="text-xs text-slate-400 truncate">
+                      {{ getTopicDescription(topic) }}
                     </div>
                   </div>
-                  <i
-                    class="fa-solid fa-chevron-right text-xs text-slate-300"
-                  ></i>
                 </div>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
               </div>
+            </div>
 
-              <button
-                @click="openAddVerbModal"
-                class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl text-sm transition-colors flex items-center justify-center space-x-2"
-              >
-                <i class="fa-solid fa-plus"></i>
-                <span>Додати нове дієслово</span>
+            <button @click="openAddVerbModal"
+              class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl text-sm transition-colors flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-plus"></i>
+              <span>Додати нове дієслово</span>
+            </button>
+          </div>
+
+          <!-- Recent / Due Verbs List -->
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="font-bold text-lg text-slate-800">
+                Перелік останніх доданих слів
+              </h2>
+              <button @click="goToVerbs" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                Керувати словами
               </button>
             </div>
 
-            <!-- Recent / Due Verbs List -->
-            <div
-              class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 space-y-4"
-            >
-              <div class="flex items-center justify-between">
-                <h2 class="font-bold text-lg text-slate-800">
-                  Перелік останніх доданих слів
-                </h2>
-                <button
-                  @click="goToVerbs"
-                  class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                >
-                  Керувати словами
-                </button>
+            <div v-if="isVerbsEmpty" class="text-center py-12 text-slate-400 space-y-2">
+              <i class="fa-regular fa-folder-open text-4xl"></i>
+              <p>Ваша бібліотека порожня. Спробуйте створити дієслово!</p>
+            </div>
+            <div v-else class="space-y-2 overflow-y-auto max-h-[360px] pr-1">
+              <div v-for="verb in recentVerbs" :key="verb.id"
+                class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-xl transition-all space-y-2 sm:space-y-0">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-bold text-indigo-900 text-base">{{ verb.verb }}</span>
+                    <span class="text-xs bg-slate-200/60 px-2 py-0.5 rounded-md text-slate-500 font-medium">
+                      {{ getTopicName(verb.topicId) }}
+                    </span>
+                  </div>
+                  <div class="text-sm text-slate-600 font-medium mt-0.5">
+                    {{ verb.translation }}
+                  </div>
+                  <div v-if="verb.example" class="text-xs text-slate-400 italic mt-1">
+                    "{{ verb.example }}"
+                  </div>
+                </div>
+                <!-- Repetition Tag status badge -->
+                <div class="flex items-center space-x-2 self-start sm:self-center">
+                  <span :class="getStatusBadgeClass(verb.status)"
+                    class="text-xs px-2.5 py-1 rounded-full font-semibold">
+                    {{ getStatusLabel(verb.status) }}
+                  </span>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div
-                v-if="isVerbsEmpty"
-                class="text-center py-12 text-slate-400 space-y-2"
-              >
-                <i class="fa-regular fa-folder-open text-4xl"></i>
-                <p>Ваша бібліотека порожня. Спробуйте створити дієслово!</p>
-              </div>
-              <div v-else class="space-y-2 overflow-y-auto max-h-[360px] pr-1">
-                <div
-                  v-for="verb in recentVerbs"
-                  :key="verb.id"
-                  class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-xl transition-all space-y-2 sm:space-y-0"
-                >
-                  <div>
-                    <div class="flex items-center space-x-2">
-                      <span class="font-bold text-indigo-900 text-base"
-                        >{{ verb.verb }}</span
-                      >
-                      <span
-                        class="text-xs bg-slate-200/60 px-2 py-0.5 rounded-md text-slate-500 font-medium"
-                      >
-                        {{ getTopicName(verb.topicId) }}
-                      </span>
+      <!-- VERBS MANAGEMENT VIEW -->
+      <div v-if="isVerbsTab" class="space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-slate-900">
+              Моя бібліотека дієслів
+            </h1>
+            <p class="text-sm text-slate-500">
+              Додавайте нові фразові дієслова, сортуйте та шукайте потрібні
+              вирази.
+            </p>
+          </div>
+          <button @click="openAddVerbModal"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto">
+            <i class="fa-solid fa-plus"></i>
+            <span>Додати дієслово</span>
+          </button>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Search Input -->
+          <div class="relative">
+            <i
+              class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" v-model="filters.search" placeholder="Пошук дієслова або перекладу..."
+              class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
+          </div>
+          <!-- Topic Select -->
+          <div>
+            <select v-model="filters.topicId"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              <option value="">Всі теми</option>
+              <option v-for="t in topics" :value="t.id" :key="t.id">
+                {{ t.name }}
+              </option>
+            </select>
+          </div>
+          <!-- Status Select -->
+          <div>
+            <select v-model="filters.status"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              <option value="">Будь-який статус</option>
+              <option value="new">Нові</option>
+              <option value="learning">В процесі (Середні)</option>
+              <option value="mastered">Засвоєні (Легкі)</option>
+              <option value="hard">Потребують повторення</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Verbs List -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  class="bg-slate-50 border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                  <th class="p-4">Дієслово</th>
+                  <th class="p-4">Переклад</th>
+                  <th class="p-4">Тема</th>
+                  <th class="p-4 text-center">Статус</th>
+                  <th class="p-4 text-right">Дії</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
+                <tr v-if="isFilteredVerbsEmpty">
+                  <td colspan="5" class="p-12 text-center text-slate-400">
+                    <div class="flex flex-col items-center space-y-2">
+                      <i class="fa-regular fa-folder-open text-4xl"></i>
+                      <span>Нічого не знайдено за заданими фільтрами.</span>
                     </div>
-                    <div class="text-sm text-slate-600 font-medium mt-0.5">
-                      {{ verb.translation }}
+                  </td>
+                </tr>
+                <tr v-for="verb in filteredVerbs" :key="verb.id" class="hover:bg-indigo-50/10 transition-colors">
+                  <td class="p-4">
+                    <div class="font-bold text-slate-800 text-base">
+                      {{ verb.verb }}
                     </div>
-                    <div
-                      v-if="verb.example"
-                      class="text-xs text-slate-400 italic mt-1"
-                    >
+                    <div v-if="verb.example" class="text-xs text-slate-400 italic mt-0.5">
                       "{{ verb.example }}"
                     </div>
-                  </div>
-                  <!-- Repetition Tag status badge -->
-                  <div
-                    class="flex items-center space-x-2 self-start sm:self-center"
-                  >
+                  </td>
+                  <td class="p-4">
+                    <div class="font-medium text-slate-700">
+                      {{ verb.translation }}
+                    </div>
+                  </td>
+                  <td class="p-4">
                     <span
-                      :class="getStatusBadgeClass(verb.status)"
-                      class="text-xs px-2.5 py-1 rounded-full font-semibold"
-                    >
+                      class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium border border-slate-200/50">
+                      {{ getTopicName(verb.topicId) }}
+                    </span>
+                  </td>
+                  <td class="p-4 text-center">
+                    <span :class="getStatusBadgeClass(verb.status)"
+                      class="text-xs px-2.5 py-1 rounded-full font-semibold inline-block">
                       {{ getStatusLabel(verb.status) }}
                     </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  </td>
+                  <td class="p-4 text-right space-x-1">
+                    <button @click="editVerb(verb)"
+                      class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all inline-flex items-center"
+                      title="Редагувати">
+                      <i class="fa-solid fa-pen-to-square text-sm"></i>
+                    </button>
+                    <button @click="deleteVerb(verb.id)"
+                      class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-all inline-flex items-center"
+                      title="Видалити">
+                      <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
+      </div>
 
-        <!-- VERBS MANAGEMENT VIEW -->
-        <div v-if="isVerbsTab" class="space-y-6">
-          <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
-          >
-            <div>
-              <h1 class="text-2xl font-extrabold text-slate-900">
-                Моя бібліотека дієслів
-              </h1>
-              <p class="text-sm text-slate-500">
-                Додавайте нові фразові дієслова, сортуйте та шукайте потрібні
-                вирази.
-              </p>
-            </div>
-            <button
-              @click="openAddVerbModal"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto"
-            >
-              <i class="fa-solid fa-plus"></i>
-              <span>Додати дієслово</span>
-            </button>
+      <!-- TOPICS VIEW -->
+      <div v-if="isTopicsTab" class="space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-extrabold text-slate-900">
+              Управління Темами
+            </h1>
+            <p class="text-sm text-slate-500">
+              Групуйте ваші фразові дієслова, щоб вивчати їх за контекстом.
+            </p>
           </div>
-
-          <!-- Filters Bar -->
-          <div
-            class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4"
-          >
-            <!-- Search Input -->
-            <div class="relative">
-              <i
-                class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
-              ></i>
-              <input
-                type="text"
-                v-model="filters.search"
-                placeholder="Пошук дієслова або перекладу..."
-                class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
-            </div>
-            <!-- Topic Select -->
-            <div>
-              <select
-                v-model="filters.topicId"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              >
-                <option value="">Всі теми</option>
-                <option v-for="t in topics" :value="t.id" :key="t.id">
-                  {{ t.name }}
-                </option>
-              </select>
-            </div>
-            <!-- Status Select -->
-            <div>
-              <select
-                v-model="filters.status"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              >
-                <option value="">Будь-який статус</option>
-                <option value="new">Нові</option>
-                <option value="learning">В процесі (Середні)</option>
-                <option value="mastered">Засвоєні (Легкі)</option>
-                <option value="hard">Потребують повторення</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Verbs List -->
-          <div
-            class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
-          >
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr
-                    class="bg-slate-50 border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase tracking-wider"
-                  >
-                    <th class="p-4">Дієслово</th>
-                    <th class="p-4">Переклад</th>
-                    <th class="p-4">Тема</th>
-                    <th class="p-4 text-center">Статус</th>
-                    <th class="p-4 text-right">Дії</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
-                  <tr v-if="isFilteredVerbsEmpty">
-                    <td colspan="5" class="p-12 text-center text-slate-400">
-                      <div class="flex flex-col items-center space-y-2">
-                        <i class="fa-regular fa-folder-open text-4xl"></i>
-                        <span>Нічого не знайдено за заданими фільтрами.</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr
-                    v-for="verb in filteredVerbs"
-                    :key="verb.id"
-                    class="hover:bg-indigo-50/10 transition-colors"
-                  >
-                    <td class="p-4">
-                      <div class="font-bold text-slate-800 text-base">
-                        {{ verb.verb }}
-                      </div>
-                      <div
-                        v-if="verb.example"
-                        class="text-xs text-slate-400 italic mt-0.5"
-                      >
-                        "{{ verb.example }}"
-                      </div>
-                    </td>
-                    <td class="p-4">
-                      <div class="font-medium text-slate-700">
-                        {{ verb.translation }}
-                      </div>
-                    </td>
-                    <td class="p-4">
-                      <span
-                        class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium border border-slate-200/50"
-                      >
-                        {{ getTopicName(verb.topicId) }}
-                      </span>
-                    </td>
-                    <td class="p-4 text-center">
-                      <span
-                        :class="getStatusBadgeClass(verb.status)"
-                        class="text-xs px-2.5 py-1 rounded-full font-semibold inline-block"
-                      >
-                        {{ getStatusLabel(verb.status) }}
-                      </span>
-                    </td>
-                    <td class="p-4 text-right space-x-1">
-                      <button
-                        @click="editVerb(verb)"
-                        class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all inline-flex items-center"
-                        title="Редагувати"
-                      >
-                        <i class="fa-solid fa-pen-to-square text-sm"></i>
-                      </button>
-                      <button
-                        @click="deleteVerb(verb.id)"
-                        class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-all inline-flex items-center"
-                        title="Видалити"
-                      >
-                        <i class="fa-solid fa-trash-can text-sm"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <button @click="openAddTopicModal"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto">
+            <i class="fa-solid fa-plus"></i>
+            <span>Створити тему</span>
+          </button>
         </div>
 
-        <!-- TOPICS VIEW -->
-        <div v-if="isTopicsTab" class="space-y-6">
-          <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-4"
-          >
+        <!-- Topics Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="topic in topics" :key="topic.id"
+            class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition-all relative group">
             <div>
-              <h1 class="text-2xl font-extrabold text-slate-900">
-                Управління Темами
-              </h1>
-              <p class="text-sm text-slate-500">
-                Групуйте ваші фразові дієслова, щоб вивчати їх за контекстом.
+              <div class="flex items-center justify-between mb-3">
+                <span class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl inline-flex">
+                  <i class="fa-solid fa-tags text-lg"></i>
+                </span>
+                <span class="text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg">
+                  {{ getTopicVerbCount(topic.id) }} слів
+                </span>
+              </div>
+              <h3 class="font-bold text-lg text-slate-800 group-hover:text-indigo-600 transition-colors">
+                {{ topic.name }}
+              </h3>
+              <p class="text-sm text-slate-500 mt-2 line-clamp-2 min-h-[40px]">
+                {{ getTopicDescription(topic) }}
               </p>
             </div>
-            <button
-              @click="openAddTopicModal"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto"
-            >
-              <i class="fa-solid fa-plus"></i>
-              <span>Створити тему</span>
-            </button>
-          </div>
 
-          <!-- Topics Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div
-              v-for="topic in topics"
-              :key="topic.id"
-              class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition-all relative group"
-            >
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span
-                    class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl inline-flex"
-                  >
-                    <i class="fa-solid fa-tags text-lg"></i>
-                  </span>
-                  <span
-                    class="text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"
-                  >
-                    {{ getTopicVerbCount(topic.id) }} слів
-                  </span>
-                </div>
-                <h3
-                  class="font-bold text-lg text-slate-800 group-hover:text-indigo-600 transition-colors"
-                >
-                  {{ topic.name }}
-                </h3>
-                <p
-                  class="text-sm text-slate-500 mt-2 line-clamp-2 min-h-[40px]"
-                >
-                  {{ getTopicDescription(topic) }}
-                </p>
-              </div>
+            <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-50">
+              <button @click="openStudyWithTopic(topic.id)"
+                class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-xl transition-all">
+                <i class="fa-solid fa-circle-play mr-1"></i>
+                <span>Повторити тему</span>
+              </button>
 
-              <div
-                class="flex items-center justify-between mt-6 pt-4 border-t border-slate-50"
-              >
-                <button
-                  @click="openStudyWithTopic(topic.id)"
-                  class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-xl transition-all"
-                >
-                  <i class="fa-solid fa-circle-play mr-1"></i>
-                  <span>Повторити тему</span>
+              <div class="flex items-center space-x-1">
+                <button @click="editTopic(topic)"
+                  class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all inline-flex items-center"
+                  title="Редагувати">
+                  <i class="fa-solid fa-pen-to-square text-xs"></i>
                 </button>
-
-                <div class="flex items-center space-x-1">
-                  <button
-                    @click="editTopic(topic)"
-                    class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all inline-flex items-center"
-                    title="Редагувати"
-                  >
-                    <i class="fa-solid fa-pen-to-square text-xs"></i>
-                  </button>
-                  <button
-                    @click="deleteTopic(topic.id)"
-                    class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-all inline-flex items-center"
-                    title="Видалити"
-                  >
-                    <i class="fa-solid fa-trash-can text-xs"></i>
-                  </button>
-                </div>
+                <button @click="deleteTopic(topic.id)"
+                  class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-all inline-flex items-center"
+                  title="Видалити">
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- ACTIVE STUDY SESSION -->
-        <div v-if="isStudyTab" class="max-w-xl mx-auto space-y-6">
-          <!-- Study Header -->
-          <div class="flex items-center justify-between">
-            <button
-              @click="quitStudySession"
-              class="text-slate-500 hover:text-slate-700 font-medium text-sm flex items-center space-x-1.5 bg-slate-200/50 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all"
-            >
-              <i class="fa-solid fa-xmark"></i>
-              <span>Завершити</span>
-            </button>
-            <div class="text-sm text-slate-500 font-semibold">
-              Сесія: {{ currentVerbIndex + 1 }} з {{ studyQueue.length }}
-            </div>
+      <!-- ACTIVE STUDY SESSION -->
+      <div v-if="isStudyTab" class="max-w-xl mx-auto space-y-6">
+        <!-- Study Header -->
+        <div class="flex items-center justify-between">
+          <button @click="quitStudySession"
+            class="text-slate-500 hover:text-slate-700 font-medium text-sm flex items-center space-x-1.5 bg-slate-200/50 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all">
+            <i class="fa-solid fa-xmark"></i>
+            <span>Завершити</span>
+          </button>
+          <div class="text-sm text-slate-500 font-semibold">
+            Сесія: {{ currentVerbIndex + 1 }} з {{ studyQueue.length }}
           </div>
+        </div>
 
-          <!-- Progress Bar -->
-          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-            <div
-              class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
-              :style="progressStyle"
-            ></div>
-          </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+          <div class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" :style="progressStyle"></div>
+        </div>
 
-          <!-- Active Card Container -->
-          <div
-            class="perspective-1000 w-full min-h-[350px]"
-            v-if="currentStudyVerb"
-          >
+        <!-- 1. MODE: FLASHCARDS -->
+        <div v-if="studyMode === 'cards'" class="space-y-6">
+          <div class="perspective-1000 w-full min-h-[350px]" v-if="currentStudyVerb">
             <div :class="cardDynamicClass" @click="flipCard">
               <!-- Card Front (English Verb) -->
               <div
-                class="absolute inset-0 w-full h-full bg-white rounded-3xl p-8 shadow-md border border-indigo-100 flex flex-col justify-between backface-hidden"
-              >
+                class="absolute inset-0 w-full h-full bg-white rounded-3xl p-8 shadow-md border border-indigo-100 flex flex-col justify-between backface-hidden">
                 <div class="flex justify-between items-center w-full">
                   <span
-                    class="text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl"
-                  >
+                    class="text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl">
                     {{ getTopicName(currentStudyVerb.topicId) }}
                   </span>
                   <span class="text-xs text-slate-400">
@@ -609,21 +476,16 @@
                 </div>
 
                 <div class="text-center py-6">
-                  <h2
-                    class="text-3xl sm:text-4xl font-extrabold text-indigo-900 tracking-tight mb-3"
-                  >
+                  <h2 class="text-3xl sm:text-4xl font-extrabold text-indigo-900 tracking-tight mb-3">
                     {{ currentStudyVerb.verb }}
                   </h2>
-                  <p
-                    class="text-xs text-indigo-500/80 uppercase font-bold tracking-widest mt-2"
-                  >
+                  <p class="text-xs text-indigo-500/80 uppercase font-bold tracking-widest mt-2">
                     Phrasal Verb
                   </p>
                 </div>
 
                 <div
-                  class="text-center text-slate-400 text-sm border-t border-slate-50 pt-4 flex items-center justify-center space-x-2"
-                >
+                  class="text-center text-slate-400 text-sm border-t border-slate-50 pt-4 flex items-center justify-center space-x-2">
                   <i class="fa-solid fa-arrow-rotate-left"></i>
                   <span>Клікніть по картці для перевороту</span>
                 </div>
@@ -631,17 +493,13 @@
 
               <!-- Card Back (Ukrainian Translation + Details) -->
               <div
-                class="absolute inset-0 w-full h-full bg-white rounded-3xl p-8 shadow-md border border-indigo-100 flex flex-col justify-between backface-hidden rotate-y-180"
-              >
+                class="absolute inset-0 w-full h-full bg-white rounded-3xl p-8 shadow-md border border-indigo-100 flex flex-col justify-between backface-hidden rotate-y-180">
                 <div class="flex justify-between items-center w-full">
                   <span
-                    class="text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl"
-                  >
+                    class="text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl">
                     {{ getTopicName(currentStudyVerb.topicId) }}
                   </span>
-                  <span
-                    class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg"
-                  >
+                  <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg">
                     {{ getStatusLabel(currentStudyVerb.status) }}
                   </span>
                 </div>
@@ -650,20 +508,14 @@
                   <div class="text-slate-400 text-sm font-semibold">
                     Переклад:
                   </div>
-                  <h2
-                    class="text-2xl sm:text-3xl font-extrabold text-indigo-950 tracking-tight"
-                  >
+                  <h2 class="text-2xl sm:text-3xl font-extrabold text-indigo-950 tracking-tight">
                     {{ currentStudyVerb.translation }}
                   </h2>
 
                   <!-- Context / Example -->
-                  <div
-                    v-if="currentStudyVerb.example"
-                    class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50 text-left mt-4"
-                  >
-                    <div
-                      class="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1"
-                    >
+                  <div v-if="currentStudyVerb.example"
+                    class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50 text-left mt-4">
+                    <div class="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-1">
                       Приклад використання:
                     </div>
                     <p class="text-sm italic text-indigo-900 font-medium">
@@ -672,9 +524,7 @@
                   </div>
                 </div>
 
-                <div
-                  class="text-center text-slate-400 text-xs border-t border-slate-50 pt-3"
-                >
+                <div class="text-center text-slate-400 text-xs border-t border-slate-50 pt-3">
                   Клікніть будь-де, щоб подивитися знову оригінал
                 </div>
               </div>
@@ -684,1588 +534,1684 @@
           <!-- Controls (Reveal & Easy/Medium/Hard Scoring Buttons) -->
           <div class="space-y-4">
             <!-- If not flipped, show Reveal button -->
-            <button
-              v-if="isCardNotFlipped"
-              @click="flipCard"
-              class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-colors flex items-center justify-center space-x-2 text-base"
-            >
+            <button v-if="isCardNotFlipped" @click="flipCard"
+              class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-colors flex items-center justify-center space-x-2 text-base">
               <i class="fa-solid fa-eye"></i>
               <span>Показати переклад</span>
             </button>
 
             <!-- If flipped, show spaced repetition grading options -->
             <div v-else class="space-y-3">
-              <p
-                class="text-center text-xs text-slate-500 font-semibold uppercase tracking-wider"
-              >
+              <p class="text-center text-xs text-slate-500 font-semibold uppercase tracking-wider">
                 Як добре ви знали це дієслово?
               </p>
               <div class="grid grid-cols-3 gap-3">
                 <!-- HARD -->
-                <button
-                  @click="gradeHard"
-                  class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
-                >
+                <button @click="gradeHard"
+                  class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1">
                   <span class="text-lg font-bold">🔴 Важко</span>
-                  <span
-                    class="text-[10px] text-rose-500 font-medium text-center"
-                    >Забув / Складно</span
-                  >
+                  <span class="text-[10px] text-rose-500 font-medium text-center" "Забув / Складно"></span>
                 </button>
                 <!-- MEDIUM -->
-                <button
-                  @click="gradeLearning"
-                  class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
-                >
+                <button @click="gradeLearning"
+                  class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1">
                   <span class="text-lg font-bold">🟡 Середнє</span>
-                  <span
-                    class="text-[10px] text-amber-500 font-medium text-center"
-                    >Згадав з зусиллям</span
-                  >
+                  <span class="text-[10px] text-amber-500 font-medium text-center" "Згадав з зусиллям"></span>
                 </button>
                 <!-- EASY -->
-                <button
-                  @click="gradeMastered"
-                  class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
-                >
+                <button @click="gradeMastered"
+                  class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1">
                   <span class="text-lg font-bold">🟢 Легко</span>
-                  <span
-                    class="text-[10px] text-emerald-500 font-medium text-center"
-                    >Пам’ятаю чудово</span
-                  >
+                  <span class="text-[10px] text-emerald-500 font-medium text-center" "Пам’ятаю чудово"></span>
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- RECAP SESSION SCREEN -->
-        <div
-          v-if="isRecapTab"
-          class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-md border border-slate-100 text-center space-y-6"
-        >
-          <div class="inline-flex p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
-            <i class="fa-solid fa-circle-check text-4xl"></i>
-          </div>
-
-          <div class="space-y-2">
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">
-              Сесію завершено! Чудова робота!
-            </h2>
-            <p class="text-slate-500 max-w-md mx-auto">
-              Ви щойно повторили {{ studyQueue.length }} фразових дієслів.
-              Інтервали для них було оновлено відповідно до ваших відповідей.
-            </p>
-          </div>
-
-          <!-- Session Stats -->
-          <div class="grid grid-cols-3 gap-4 py-4 max-w-md mx-auto">
-            <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100">
-              <div class="text-rose-700 font-bold text-xl">
-                {{ sessionGrades.hard }}
-              </div>
-              <div
-                class="text-[10px] text-slate-500 uppercase font-semibold mt-1"
-              >
-                Повторити знову
-              </div>
-            </div>
-            <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100">
-              <div class="text-amber-700 font-bold text-xl">
-                {{ sessionGrades.learning }}
-              </div>
-              <div
-                class="text-[10px] text-slate-500 uppercase font-semibold mt-1"
-              >
-                У вивченні
-              </div>
-            </div>
-            <div
-              class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100"
-            >
-              <div class="text-emerald-700 font-bold text-xl">
-                {{ sessionGrades.mastered }}
-              </div>
-              <div
-                class="text-[10px] text-slate-500 uppercase font-semibold mt-1"
-              >
-                Легкі слова
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
+        <!-- 2. MODE: MULTIPLE CHOICE QUIZ -->
+        <div v-else-if="studyMode === 'quiz'" class="space-y-6" v-if="currentStudyVerb">
           <div
-            class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-slate-100"
-          >
-            <button
-              @click="openStudySetup"
-              class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-all"
-            >
-              Почати іншу сесію
-            </button>
-            <button
-              @click="goToDashboard"
-              class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3 rounded-xl transition-all"
-            >
-              Повернутися до Панелі
-            </button>
+            class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-indigo-100 flex flex-col justify-between min-h-[220px]">
+            <div class="flex justify-between items-center w-full">
+              <span
+                class="text-xs font-semibold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl">
+                {{ getTopicName(currentStudyVerb.topicId) }}
+              </span>
+              <span class="text-xs text-slate-400">
+                Оберіть правильний варіант
+              </span>
+            </div>
+
+            <!-- Question details based on Direction -->
+            <div class="text-center py-6">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">
+                {{ studyDirection === 'en_to_ua' ? 'Фразове дієслово:' : 'Переклад українською:' }}
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-indigo-900 tracking-tight">
+                {{ studyDirection === 'en_to_ua' ? currentStudyVerb.verb : currentStudyVerb.translation }}
+              </h2>
+            </div>
           </div>
-        </div>
-      </main>
 
-      <!-- FOOTER -->
-      <footer
-        class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800 mt-auto"
-      >
-        <p>
-          © 2026 VerboInterval App. Створено з ❤️ для вивчення фразових дієслів
-          англійської мови за інтервальною системою.
-        </p>
-      </footer>
-
-      <!-- MODAL: ADD / EDIT VERB -->
-      <div
-        v-if="isVerbModalShow"
-        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transform transition-all"
-        >
-          <div
-            class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
-          >
-            <h3 class="font-bold text-lg">{{ verbModalTitle }}</h3>
-            <button
-              @click="closeVerbModal"
-              class="text-indigo-200 hover:text-white transition-colors"
-            >
-              <i class="fa-solid fa-xmark text-lg"></i>
+          <!-- Quiz Option Cards -->
+          <div class="grid grid-cols-1 gap-3">
+            <button v-for="(option, idx) in quizOptions" :key="idx" @click="selectQuizOption(option)"
+              :disabled="quizAnswered" :class="getQuizOptionClass(option)"
+              class="w-full p-4 rounded-2xl border text-left font-medium text-sm sm:text-base transition-all flex items-center justify-between">
+              <span>{{ option }}</span>
+              <span v-if="quizAnswered && option === correctQuizAnswer" class="text-emerald-600">
+                <i class="fa-solid fa-circle-check text-xl"></i>
+              </span>
+              <span v-else-if="quizAnswered && option === selectedQuizOptionText && option !== correctQuizAnswer"
+                class="text-rose-600">
+                <i class="fa-solid fa-circle-xmark text-xl"></i>
+              </span>
             </button>
           </div>
 
-          <form @submit.prevent="saveVerb" class="p-6 space-y-4">
-            <!-- English Verb -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Фразове дієслово (English) *</label
-              >
-              <input
-                type="text"
-                v-model="modals.verb.data.verb"
-                required
-                placeholder="Наприклад: look forward to, give up, break down"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
+          <!-- Actions block after answering -->
+          <div v-if="quizAnswered"
+            class="bg-slate-100 p-5 rounded-3xl border border-slate-200/60 space-y-4 animate-fade-in">
+            <!-- Example Usage display -->
+            <div v-if="currentStudyVerb.example" class="text-xs text-slate-500">
+              <span class="font-bold uppercase text-indigo-800 tracking-wide block mb-1">Приклад речення:</span>
+              <p class="italic font-medium text-slate-700">"{{ currentStudyVerb.example }}"</p>
             </div>
 
-            <!-- Ukrainian Translation -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Переклад (Українська) *</label
-              >
-              <input
-                type="text"
-                v-model="modals.verb.data.translation"
-                required
-                placeholder="Наприклад: чекати з нетерпінням, здаватися"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
+            <!-- IF WRONG ANSWER: Explain status reset -->
+            <div v-if="!isQuizAnswerCorrect" class="flex items-center space-x-2 text-rose-700 text-xs font-semibold">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Помилка! Статус дієслова скинуто до початкового («Нове слово»).</span>
             </div>
 
-            <!-- Topic Association -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Тема (Групування) *</label
-              >
-              <select
-                v-model="modals.verb.data.topicId"
-                required
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              >
-                <option value="" disabled>Оберіть тему...</option>
-                <option v-for="t in topics" :value="t.id" :key="t.id">
-                  {{ t.name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Example Usage -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Приклад речення (English)
-                <span class="text-slate-400 font-normal"
-                  >(необов’язково)</span
-                ></label
-              >
-              <textarea
-                v-model="modals.verb.data.example"
-                rows="2"
-                placeholder="Наприклад: I am looking forward to meeting you."
-                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
-              ></textarea>
-            </div>
-
-            <div
-              class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100"
-            >
-              <button
-                type="button"
-                @click="closeVerbModal"
-                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
-              >
-                Скасувати
-              </button>
-              <button
-                type="submit"
-                class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
-              >
-                {{ verbModalButtonText }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- MODAL: ADD / EDIT TOPIC -->
-      <div
-        v-if="isTopicModalShow"
-        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all"
-        >
-          <div
-            class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
-          >
-            <h3 class="font-bold text-lg">{{ topicModalTitle }}</h3>
-            <button
-              @click="closeTopicModal"
-              class="text-indigo-200 hover:text-white transition-colors"
-            >
-              <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-          </div>
-
-          <form @submit.prevent="saveTopic" class="p-6 space-y-4">
-            <!-- Topic Name -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Назва теми *</label
-              >
-              <input
-                type="text"
-                v-model="modals.topic.data.name"
-                required
-                placeholder="Наприклад: Робота та Офіс, Щоденність"
-                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-              />
-            </div>
-
-            <!-- Topic Description -->
-            <div class="space-y-1">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider"
-                >Короткий опис</label
-              >
-              <textarea
-                v-model="modals.topic.data.description"
-                rows="3"
-                placeholder="Наприклад: Фразові дієслова для робочих зустрічей, листів та обговорень..."
-                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
-              ></textarea>
-            </div>
-
-            <div
-              class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100"
-            >
-              <button
-                type="button"
-                @click="closeTopicModal"
-                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
-              >
-                Скасувати
-              </button>
-              <button
-                type="submit"
-                class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
-              >
-                {{ topicModalButtonText }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- MODAL: STUDY SETUP (CHOOSE TOPICS TO PLAY) -->
-      <div
-        v-if="isStudySetupModalShow"
-        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all"
-        >
-          <div
-            class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
-          >
-            <h3 class="font-bold text-lg">Налаштування сесії повторення</h3>
-            <button
-              @click="closeStudySetupModal"
-              class="text-indigo-200 hover:text-white transition-colors"
-            >
-              <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-          </div>
-
-          <div class="p-6 space-y-5">
-            <div class="space-y-2">
-              <label
-                class="text-xs font-bold text-slate-500 uppercase tracking-wider block"
-                >Оберіть теми для повторення:</label
-              >
-
-              <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                <!-- Select All Option -->
-                <label
-                  class="flex items-center space-x-3 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 cursor-pointer transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    :checked="isAllTopicsSelected"
-                    @change="toggleSelectAllTopics"
-                    class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-                  />
-                  <span class="text-sm font-semibold text-slate-700"
-                    >Обрати всі теми</span
-                  >
-                </label>
-
-                <!-- Individual Topics -->
-                <label
-                  v-for="t in topics"
-                  :key="t.id"
-                  class="flex items-center space-x-3 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-indigo-50/20 cursor-pointer transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    v-model="modals.studySetup.selectedTopicIds"
-                    :value="t.id"
-                    class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-                  />
-                  <div class="flex justify-between items-center w-full pr-1">
-                    <span class="text-sm text-slate-700 font-medium"
-                      >{{ t.name }}</span
-                    >
-                    <span
-                      class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md font-bold"
-                    >
-                      {{ getTopicVerbCount(t.id) }} слів
-                    </span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <!-- Verb Selection Meta -->
-            <div
-              class="bg-indigo-50 p-4 rounded-xl border border-indigo-100/50"
-            >
-              <div class="flex items-start space-x-2.5">
-                <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
-                <p class="text-xs text-indigo-950 font-medium leading-relaxed">
-                  Система автоматично підготує
-                  <strong>до 10 фразових дієслів</strong> у випадковому порядку.
-                  Пріоритет віддається дієсловам, з якими у вас виникали
-                  проблеми, або які ви ще не вивчали.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-end space-x-2 pt-2">
-              <button
-                @click="closeStudySetupModal"
-                class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all"
-              >
-                Скасувати
-              </button>
-              <button
-                @click="startStudySession"
-                :disabled="isStartStudyDisabled"
-                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-all"
-              >
-                Розпочати сесію
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODAL: SETTINGS & BACKUP (SYNCHRONIZATION) -->
-      <div
-        v-if="modals.settings.show"
-        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all"
-        >
-          <div
-            class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
-          >
-            <h3 class="font-bold text-lg">⚙️ Налаштування та Синхронізація</h3>
-            <button
-              @click="closeSettingsModal"
-              class="text-indigo-200 hover:text-white transition-colors"
-            >
-              <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-          </div>
-
-          <div class="p-6 space-y-6">
-            <!-- Backup Intro -->
-            <div class="space-y-2">
-              <h4
-                class="font-bold text-sm text-slate-800 uppercase tracking-wide"
-              >
-                Резервне копіювання (JSON)
-              </h4>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Ви можете перенести свої збережені дієслова та прогрес на інший
-                телефон, комп’ютер або інший браузер. Експортуйте дані у файл та
-                імпортуйте їх на новому пристрої.
+            <!-- IF CORRECT ANSWER: Ask for Mastered/Learning status -->
+            <div v-else class="space-y-3">
+              <p class="text-slate-700 text-xs font-bold uppercase tracking-wider text-center">
+                Вірно! Додати це дієслово до вивчених («Знаю добре»)?
               </p>
+              <div class="grid grid-cols-2 gap-3">
+                <button @click="handleQuizCorrectAction(true)"
+                  class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all text-xs flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-check"></i>
+                  <span>Так, це легко</span>
+                </button>
+                <button @click="handleQuizCorrectAction(false)"
+                  class="py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all text-xs flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-arrows-spin"></i>
+                  <span>Ні, ще вчу</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Backup Actions -->
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Export button -->
-              <button
-                @click="exportData"
-                class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-2xl transition-all space-y-2"
-              >
-                <i class="fa-solid fa-file-export text-2xl"></i>
-                <span class="text-xs font-bold">Скачати файл</span>
-              </button>
-              <!-- Import button -->
-              <button
-                @click="triggerImport"
-                class="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 rounded-2xl transition-all space-y-2"
-              >
-                <i class="fa-solid fa-file-import text-2xl"></i>
-                <span class="text-xs font-bold">Завантажити файл</span>
-              </button>
-              <!-- Hidden file input for import -->
-              <input
-                type="file"
-                ref="fileInput"
-                @change="importData"
-                accept=".json"
-                class="hidden"
-              />
-            </div>
-
-            <!-- Reset Data Block -->
-            <div class="pt-4 border-t border-slate-100 space-y-2">
-              <h4
-                class="font-bold text-sm text-slate-800 uppercase tracking-wide text-rose-700"
-              >
-                Зона ризику
-              </h4>
-              <p class="text-xs text-slate-500 leading-relaxed">
-                Скидання видалить усі ваші власні дієслова, теми та прогрес
-                вивчення, повернувши додаток до початкового стану.
-              </p>
-              <button
-                @click="resetAppData"
-                class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2"
-              >
-                <i class="fa-solid fa-trash-arrow-up"></i>
-                <span>Очистити та скинути додаток</span>
-              </button>
-            </div>
-
-            <div class="flex items-center justify-end pt-2">
-              <button
-                @click="closeSettingsModal"
-                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all"
-              >
-                Закрити
-              </button>
-            </div>
+            <!-- Trigger Next Button if Answer was WRONG (Auto continues) -->
+            <button v-if="!isQuizAnswerCorrect" @click="nextQuizQuestion"
+              class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors text-xs flex items-center justify-center space-x-2">
+              <span>Далі</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- CUSTOM CONFIRMATION MODAL (Replaces window.confirm strictly) -->
-      <div
-        v-if="modals.confirm.show"
-        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all duration-300"
-        >
-          <div class="p-6 text-center space-y-4">
-            <div
-              class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto border border-amber-100"
-            >
-              <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+      <!-- RECAP SESSION SCREEN -->
+      <div v-if="isRecapTab"
+        class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-md border border-slate-100 text-center space-y-6">
+        <div class="inline-flex p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
+          <i class="fa-solid fa-circle-check text-4xl"></i>
+        </div>
+
+        <div class="space-y-2">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">
+            Сесію завершено! Чудова робота!
+          </h2>
+          <p class="text-slate-500 max-w-md mx-auto">
+            Ви щойно повторили {{ studyQueue.length }} фразових дієслів.
+            Інтервали для них було оновлено відповідно до ваших відповідей.
+          </p>
+        </div>
+
+        <!-- Session Stats -->
+        <div class="grid grid-cols-3 gap-4 py-4 max-w-md mx-auto">
+          <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100">
+            <div class="text-rose-700 font-bold text-xl">
+              {{ sessionGrades.hard }}
             </div>
-            <div class="space-y-1">
-              <h3 class="font-bold text-lg text-slate-900">
-                {{ modals.confirm.title }}
-              </h3>
-              <p class="text-sm text-slate-500 leading-relaxed">
-                {{ modals.confirm.message }}
-              </p>
+            <div class="text-[10px] text-slate-500 uppercase font-semibold mt-1">
+              Повторити знову
             </div>
           </div>
-          <div
-            class="bg-slate-50 px-6 py-4 flex items-center justify-end space-x-2 border-t border-slate-100"
-          >
-            <button
-              @click="closeConfirmModal"
-              class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
-            >
+          <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100">
+            <div class="text-amber-700 font-bold text-xl">
+              {{ sessionGrades.learning }}
+            </div>
+            <div class="text-[10px] text-slate-500 uppercase font-semibold mt-1">
+              У вивченні
+            </div>
+          </div>
+          <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+            <div class="text-emerald-700 font-bold text-xl">
+              {{ sessionGrades.mastered }}
+            </div>
+            <div class="text-[10px] text-slate-500 uppercase font-semibold mt-1">
+              Легкі слова
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-slate-100">
+          <button @click="openStudySetup"
+            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-all">
+            Почати іншу сесію
+          </button>
+          <button @click="goToDashboard"
+            class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3 rounded-xl transition-all">
+            Повернутися до Панелі
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs border-t border-slate-800 mt-auto">
+      <p>
+        © 2026 VerboInterval App. Створено з ❤️ для вивчення фразових дієслів
+        англійської мови за інтервальною системою.
+      </p>
+    </footer>
+
+    <!-- MODAL: ADD / EDIT VERB -->
+    <div v-if="isVerbModalShow"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transform transition-all">
+        <div class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="font-bold text-lg">{{ verbModalTitle }}</h3>
+          <button @click="closeVerbModal" class="text-indigo-200 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="saveVerb" class="p-6 space-y-4">
+          <!-- English Verb -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Фразове дієслово (English)
+              *</label>
+            <input type="text" v-model="modals.verb.data.verb" required
+              placeholder="Наприклад: look forward to, give up, break down"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
+          </div>
+
+          <!-- Ukrainian Translation -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Переклад (Українська) *</label>
+            <input type="text" v-model="modals.verb.data.translation" required
+              placeholder="Наприклад: чекати з нетерпінням, здаватися"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
+          </div>
+
+          <!-- Topic Association -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Тема (Групування) *</label>
+            <select v-model="modals.verb.data.topicId" required
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+              <option value="" disabled>Оберіть тему...</option>
+              <option v-for="t in topics" :value="t.id" :key="t.id">
+                {{ t.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Example Usage -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Приклад речення (English)
+              <span class="text-slate-400 font-normal">(необов’язково)</span></label>
+            <textarea v-model="modals.verb.data.example" rows="2"
+              placeholder="Наприклад: I am looking forward to meeting you."
+              class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100">
+            <button type="button" @click="closeVerbModal"
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors">
               Скасувати
             </button>
-            <button
-              @click="modals.confirm.onConfirm"
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
-            >
-              Підтвердити
+            <button type="submit"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors">
+              {{ verbModalButtonText }}
             </button>
           </div>
-        </div>
+        </form>
       </div>
+    </div>
 
-      <!-- NOTIFICATION SYSTEM -->
-      <div
-        v-if="isNotificationShow"
-        class="fixed bottom-5 right-5 z-50 transform transition-all duration-300"
-      >
-        <div :class="notificationClass">
-          <i :class="notificationIconClass"></i>
-          <span>{{ notification.message }}</span>
+    <!-- MODAL: ADD / EDIT TOPIC -->
+    <div v-if="isTopicModalShow"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all">
+        <div class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="font-bold text-lg">{{ topicModalTitle }}</h3>
+          <button @click="closeTopicModal" class="text-indigo-200 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="saveTopic" class="p-6 space-y-4">
+          <!-- Topic Name -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Назва теми *</label>
+            <input type="text" v-model="modals.topic.data.name" required
+              placeholder="Наприклад: Робота та Офіс, Щоденність"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
+          </div>
+
+          <!-- Topic Description -->
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Короткий опис</label>
+            <textarea v-model="modals.topic.data.description" rows="3"
+              placeholder="Наприклад: Фразові дієслова для робочих зустрічей, листів та обговорень..."
+              class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100">
+            <button type="button" @click="closeTopicModal"
+              class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors">
+              Скасувати
+            </button>
+            <button type="submit"
+              class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors">
+              {{ topicModalButtonText }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: STUDY SETUP (CHOOSE TOPICS & CHOOSE MODE TO PLAY) -->
+    <div v-if="isStudySetupModalShow"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all">
+        <div class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="font-bold text-lg">Налаштування сесії повторення</h3>
+          <button @click="closeStudySetupModal" class="text-indigo-200 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-5">
+          <!-- Mode Selector inside Setup -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Режим навчання:</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button @click="studyMode = 'cards'"
+                :class="studyMode === 'cards' ? 'border-indigo-600 bg-indigo-50 text-indigo-900 font-bold' : 'border-slate-200 bg-white text-slate-700 font-medium'"
+                class="p-3.5 border-2 rounded-2xl text-xs transition-all text-center flex flex-col items-center justify-center space-y-1.5">
+                <i class="fa-solid fa-clone text-lg"></i>
+                <span>Картки</span>
+              </button>
+              <button @click="studyMode = 'quiz'"
+                :class="studyMode === 'quiz' ? 'border-indigo-600 bg-indigo-50 text-indigo-900 font-bold' : 'border-slate-200 bg-white text-slate-700 font-medium'"
+                class="p-3.5 border-2 rounded-2xl text-xs transition-all text-center flex flex-col items-center justify-center space-y-1.5">
+                <i class="fa-solid fa-circle-question text-lg"></i>
+                <span>Тест (4 варіанти)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Direction Selector (Only if Mode is Quiz) -->
+          <div class="space-y-2" v-if="studyMode === 'quiz'">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Напрямок тесту:</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button @click="studyDirection = 'en_to_ua'"
+                :class="studyDirection === 'en_to_ua' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold' : 'border-slate-200 bg-white text-slate-700 font-medium'"
+                class="p-3 border-2 rounded-xl text-xs text-center">
+                🇬🇧 EN ➔ 🇺🇦 UA
+              </button>
+              <button @click="studyDirection = 'ua_to_en'"
+                :class="studyDirection === 'ua_to_en' ? 'border-indigo-600 bg-indigo-50 text-indigo-950 font-bold' : 'border-slate-200 bg-white text-slate-700 font-medium'"
+                class="p-3 border-2 rounded-xl text-xs text-center">
+                🇺🇦 UA ➔ 🇬🇧 EN
+              </button>
+            </div>
+          </div>
+
+          <!-- Topic Selection -->
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Оберіть теми для
+              повторення:</label>
+
+            <div class="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+              <!-- Select All Option -->
+              <label
+                class="flex items-center space-x-3 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 cursor-pointer transition-colors">
+                <input type="checkbox" :checked="isAllTopicsSelected" @change="toggleSelectAllTopics"
+                  class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500" />
+                <span class="text-sm font-semibold text-slate-700">Обрати всі теми</span>
+              </label>
+
+              <!-- Individual Topics -->
+              <label v-for="t in topics" :key="t.id"
+                class="flex items-center space-x-3 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-indigo-50/20 cursor-pointer transition-colors">
+                <input type="checkbox" v-model="modals.studySetup.selectedTopicIds" :value="t.id"
+                  class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500" />
+                <div class="flex justify-between items-center w-full pr-1">
+                  <span class="text-sm text-slate-700 font-medium">{{ t.name }}</span>
+                  <span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md font-bold">
+                    {{ getTopicVerbCount(t.id) }} слів
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Verb Selection Meta -->
+          <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100/50">
+            <div class="flex items-start space-x-2.5">
+              <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
+              <p class="text-xs text-indigo-950 font-medium leading-relaxed">
+                Система автоматично підготує
+                <strong>до 10 фразових дієслів</strong> у випадковому порядку.
+                Пріоритет віддається дієсловам, з якими у вас виникали
+                проблеми, або які ви ще не вивчали.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-2 pt-2">
+            <button @click="closeStudySetupModal"
+              class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">
+              Скасувати
+            </button>
+            <button @click="startStudySession" :disabled="isStartStudyDisabled"
+              class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-all">
+              Розпочати сесію
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <script>
-      const { createApp, ref, computed, onMounted } = Vue;
+    <!-- MODAL: SETTINGS & BACKUP (SYNCHRONIZATION) -->
+    <div v-if="modals.settings.show"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all">
+        <div class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between">
+          <h3 class="font-bold text-lg">⚙️ Налаштування та Синхронізація</h3>
+          <button @click="closeSettingsModal" class="text-indigo-200 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
 
-      createApp({
-        setup() {
-          // Tailwind design tokens declared in standard variables
-          const activeTabClass =
-            'px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-indigo-800 text-white';
-          const inactiveTabClass =
-            'px-4 py-2 rounded-xl text-sm font-medium transition-colors text-indigo-200 hover:text-white hover:bg-indigo-800/50';
+        <div class="p-6 space-y-6">
+          <!-- Backup Intro -->
+          <div class="space-y-2">
+            <h4 class="font-bold text-sm text-slate-800 uppercase tracking-wide">
+              Резервне копіювання (JSON)
+            </h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Ви можете перенести свої збережені дієслова та прогрес на інший
+              телефон, комп’ютер або інший браузер. Експортуйте дані у файл та
+              імпортуйте їх на новому пристрої.
+            </p>
+          </div>
 
-          // HTML References
-          const fileInput = ref(null);
+          <!-- Backup Actions -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Export button -->
+            <button @click="exportData"
+              class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-2xl transition-all space-y-2">
+              <i class="fa-solid fa-file-export text-2xl"></i>
+              <span class="text-xs font-bold">Скачати файл</span>
+            </button>
+            <!-- Import button -->
+            <button @click="triggerImport"
+              class="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 rounded-2xl transition-all space-y-2">
+              <i class="fa-solid fa-file-import text-2xl"></i>
+              <span class="text-xs font-bold">Завантажити файл</span>
+            </button>
+            <!-- Hidden file input for import -->
+            <input type="file" ref="fileInput" @change="importData" accept=".json" class="hidden" />
+          </div>
 
-          // Mock / Initial Data with safe Ukrainian curly apostrophes and correctly formatted JS strings
-          const initialTopics = [
-            {
-              id: 't1',
-              name: 'Щоденне життя',
-              description:
-                'Дії, які ми виконуємо вдома, під час прогулянок та у повсякденні',
-            },
-            {
-              id: 't2',
-              name: 'Робота та Бізнес',
-              description:
-                'Спілкування з колегами, ділове листування, планування та дедлайни',
-            },
-            {
-              id: 't3',
-              name: 'Подорожі та Рух',
-              description:
-                'Орієнтування в нових місцях, транспорт, бронювання та активний подорожній рух',
-            },
-          ];
+          <!-- Reset Data Block -->
+          <div class="pt-4 border-t border-slate-100 space-y-2">
+            <h4 class="font-bold text-sm text-slate-800 uppercase tracking-wide text-rose-700">
+              Зона ризику
+            </h4>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Скидання видалить усі ваші власні дієслова, теми та прогрес
+              вивчення, повернувши додаток до початкового стану.
+            </p>
+            <button @click="resetAppData"
+              class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-trash-arrow-up"></i>
+              <span>Очистити та скинути додаток</span>
+            </button>
+          </div>
 
-          const initialVerbs = [
-            {
-              id: 'v1',
-              verb: 'wake up',
-              translation: 'прокидатися',
-              topicId: 't1',
-              status: 'mastered',
-              example: 'I usually wake up at 7 AM every day.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v2',
-              verb: 'put on',
-              translation: 'надягати (одяг)',
-              topicId: 't1',
-              status: 'mastered',
-              example: 'She put on her heavy winter coat.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v3',
-              verb: 'look for',
-              translation: 'шукати щось або когось',
-              topicId: 't1',
-              status: 'learning',
-              example: 'I am looking for my keys. Have you seen them?',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v4',
-              verb: 'give up',
-              translation: 'здаватися, кидати (звичку)',
-              topicId: 't1',
-              status: 'hard',
-              example: 'Never give up on your dreams.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v5',
-              verb: 'go out',
-              translation: 'виходити гуляти, проводити час поза домом',
-              topicId: 't1',
-              status: 'new',
-              example: 'Let’s go out for dinner tonight.',
-              lastReviewed: null,
-              repetitions: 0,
-            },
+          <div class="flex items-center justify-end pt-2">
+            <button @click="closeSettingsModal"
+              class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">
+              Закрити
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            {
-              id: 'v6',
-              verb: 'carry out',
-              translation: 'виконувати, проводити (план, дослідження)',
-              topicId: 't2',
-              status: 'learning',
-              example: 'The team will carry out the project plan next week.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v7',
-              verb: 'call off',
-              translation: 'скасовувати (зустріч, подію)',
-              topicId: 't2',
-              status: 'hard',
-              example: 'They had to call off the meeting due to the weather.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v8',
-              verb: 'set up',
-              translation: 'засновувати, створювати (бізнес, систему)',
-              topicId: 't2',
-              status: 'new',
-              example:
-                'He decided to set up his own software development company.',
-              lastReviewed: null,
-              repetitions: 0,
-            },
-            {
-              id: 'v9',
-              verb: 'put off',
-              translation: 'відкладати на потім, переносити',
-              topicId: 't2',
-              status: 'new',
-              example: 'Never put off until tomorrow what you can do today.',
-              lastReviewed: null,
-              repetitions: 0,
-            },
-            {
-              id: 'v10',
-              verb: 'fill out',
-              translation: 'заповнювати (анкету, бланк)',
-              topicId: 't2',
-              status: 'mastered',
-              example: 'Please fill out this registration form.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
+    <!-- CUSTOM CONFIRMATION MODAL (Replaces window.confirm strictly) -->
+    <div v-if="modals.confirm.show"
+      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all duration-300">
+        <div class="p-6 text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto border border-amber-100">
+            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+          </div>
+          <div class="space-y-1">
+            <h3 class="font-bold text-lg text-slate-900">
+              {{ modals.confirm.title }}
+            </h3>
+            <p class="text-sm text-slate-500 leading-relaxed">
+              {{ modals.confirm.message }}
+            </p>
+          </div>
+        </div>
+        <div class="bg-slate-50 px-6 py-4 flex items-center justify-end space-x-2 border-t border-slate-100">
+          <button @click="closeConfirmModal"
+            class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors">
+            Скасувати
+          </button>
+          <button @click="modals.confirm.onConfirm"
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors">
+            Підтвердити
+          </button>
+        </div>
+      </div>
+    </div>
 
-            {
-              id: 'v11',
-              verb: 'check in',
-              translation: 'реєструватися (в готелі, аеропорту)',
-              topicId: 't3',
-              status: 'mastered',
-              example: 'We must check in at least two hours before the flight.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v12',
-              verb: 'get in / into',
-              translation: 'сідати у машину / заходити у приміщення',
-              topicId: 't3',
-              status: 'learning',
-              example: 'Get into the car, we are running late!',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-            {
-              id: 'v13',
-              verb: 'get off',
-              translation: 'виходити з транспорту (автобус, потяг, літак)',
-              topicId: 't3',
-              status: 'new',
-              example: 'I need to get off at the next bus stop.',
-              lastReviewed: null,
-              repetitions: 0,
-            },
-            {
-              id: 'v14',
-              verb: 'look around',
-              translation: 'озиратися, оглядати місцевість',
-              topicId: 't3',
-              status: 'new',
-              example: 'We spent the afternoon looking around the old town.',
-              lastReviewed: null,
-              repetitions: 0,
-            },
-            {
-              id: 'v15',
-              verb: 'set off',
-              translation: 'вирушати в дорогу, починати подорож',
-              topicId: 't3',
-              status: 'hard',
-              example: 'They set off early in the morning to avoid traffic.',
-              lastReviewed: null,
-              repetitions: 1,
-            },
-          ];
+    <!-- NOTIFICATION SYSTEM -->
+    <div v-if="isNotificationShow" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300">
+      <div :class="notificationClass">
+        <i :class="notificationIconClass"></i>
+        <span>{{ notification.message }}</span>
+      </div>
+    </div>
+  </div>
 
-          // Reactive State
-          const currentTab = ref('dashboard');
-          const topics = ref([]);
-          const verbs = ref([]);
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
 
-          // Load from Local Storage or fallback
-          onMounted(() => {
-            loadAppData();
-          });
+    createApp({
+      setup() {
+        // Tailwind design tokens declared in standard variables
+        const activeTabClass =
+          'px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-indigo-800 text-white';
+        const inactiveTabClass =
+          'px-4 py-2 rounded-xl text-sm font-medium transition-colors text-indigo-200 hover:text-white hover:bg-indigo-800/50';
 
-          function loadAppData() {
-            const savedTopics = localStorage.getItem('vi_topics');
-            const savedVerbs = localStorage.getItem('vi_verbs');
+        // HTML References
+        const fileInput = ref(null);
 
-            if (savedTopics) {
-              topics.value = JSON.parse(savedTopics);
-            } else {
-              topics.value = initialTopics;
-              saveTopicsToStorage();
-            }
+        // Mock / Initial Data with safe Ukrainian curly apostrophes and correctly formatted JS strings
+        const initialTopics = [
+          {
+            id: 't1',
+            name: 'Щоденне життя',
+            description:
+              'Дії, які ми виконуємо вдома, під час прогулянок та у повсякденні',
+          },
+          {
+            id: 't2',
+            name: 'Робота та Бізнес',
+            description:
+              'Спілкування з колегами, ділове листування, планування та дедлайни',
+          },
+          {
+            id: 't3',
+            name: 'Подорожі та Рух',
+            description:
+              'Орієнтування в нових місцях, транспорт, бронювання та активний подорожній рух',
+          },
+        ];
 
-            if (savedVerbs) {
-              verbs.value = JSON.parse(savedVerbs);
-            } else {
-              verbs.value = initialVerbs;
-              saveVerbsToStorage();
-            }
+        const initialVerbs = [
+          {
+            id: 'v1',
+            verb: 'wake up',
+            translation: 'прокидатися',
+            topicId: 't1',
+            status: 'mastered',
+            example: 'I usually wake up at 7 AM every day.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v2',
+            verb: 'put on',
+            translation: 'надягати (одяг)',
+            topicId: 't1',
+            status: 'mastered',
+            example: 'She put on her heavy winter coat.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v3',
+            verb: 'look for',
+            translation: 'шукати щось або когось',
+            topicId: 't1',
+            status: 'learning',
+            example: 'I am looking for my keys. Have you seen them?',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v4',
+            verb: 'give up',
+            translation: 'здаватися, кидати (звичку)',
+            topicId: 't1',
+            status: 'hard',
+            example: 'Never give up on your dreams.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v5',
+            verb: 'go out',
+            translation: 'виходити гуляться, проводити час поза домом',
+            topicId: 't1',
+            status: 'new',
+            example: 'Let’s go out for dinner tonight.',
+            lastReviewed: null,
+            repetitions: 0,
+          },
+
+          {
+            id: 'v6',
+            verb: 'carry out',
+            translation: 'виконувати, проводити (план, дослідження)',
+            topicId: 't2',
+            status: 'learning',
+            example: 'The team will carry out the project plan next week.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v7',
+            verb: 'call off',
+            translation: 'скасовувати (зустріч, подію)',
+            topicId: 't2',
+            status: 'hard',
+            example: 'They had to call off the meeting due to the weather.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v8',
+            verb: 'set up',
+            translation: 'засновувати, створювати (бізнес, систему)',
+            topicId: 't2',
+            status: 'new',
+            example:
+              'He decided to set up his own software development company.',
+            lastReviewed: null,
+            repetitions: 0,
+          },
+          {
+            id: 'v9',
+            verb: 'put off',
+            translation: 'відкладати на потім, переносити',
+            topicId: 't2',
+            status: 'new',
+            example: 'Never put off until tomorrow what you can do today.',
+            lastReviewed: null,
+            repetitions: 0,
+          },
+          {
+            id: 'v10',
+            verb: 'fill out',
+            translation: 'заповнювати (анкету, бланк)',
+            topicId: 't2',
+            status: 'mastered',
+            example: 'Please fill out this registration form.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+
+          {
+            id: 'v11',
+            verb: 'check in',
+            translation: 'реєструватися (в готелі, аеропорту)',
+            topicId: 't3',
+            status: 'mastered',
+            example: 'We must check in at least two hours before the flight.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v12',
+            verb: 'get in / into',
+            translation: 'сідати у машину / заходити у приміщення',
+            topicId: 't3',
+            status: 'learning',
+            example: 'Get into the car, we are running late!',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+          {
+            id: 'v13',
+            verb: 'get off',
+            translation: 'виходити з транспорту (автобус, потяг, літак)',
+            topicId: 't3',
+            status: 'new',
+            example: 'I need to get off at the next bus stop.',
+            lastReviewed: null,
+            repetitions: 0,
+          },
+          {
+            id: 'v14',
+            verb: 'look around',
+            translation: 'озиратися, оглядати місцевість',
+            topicId: 't3',
+            status: 'new',
+            example: 'We spent the afternoon looking around the old town.',
+            lastReviewed: null,
+            repetitions: 0,
+          },
+          {
+            id: 'v15',
+            verb: 'set off',
+            translation: 'вирушати в дорогу, починати подорож',
+            topicId: 't3',
+            status: 'hard',
+            example: 'They set off early in the morning to avoid traffic.',
+            lastReviewed: null,
+            repetitions: 1,
+          },
+        ];
+
+        // Reactive State
+        const currentTab = ref('dashboard');
+        const topics = ref([]);
+        const verbs = ref([]);
+
+        // Study Session Mode states
+        const studyMode = ref('cards'); // 'cards' або 'quiz'
+        const studyDirection = ref('en_to_ua'); // 'en_to_ua' або 'ua_to_en'
+
+        // Load from Local Storage or fallback
+        onMounted(() => {
+          loadAppData();
+        });
+
+        function loadAppData() {
+          const savedTopics = localStorage.getItem('vi_topics');
+          const savedVerbs = localStorage.getItem('vi_verbs');
+
+          if (savedTopics) {
+            topics.value = JSON.parse(savedTopics);
+          } else {
+            topics.value = initialTopics;
+            saveTopicsToStorage();
           }
 
-          // LocalStorage Helpers
-          function saveTopicsToStorage() {
-            localStorage.setItem('vi_topics', JSON.stringify(topics.value));
-          }
-
-          function saveVerbsToStorage() {
-            localStorage.setItem('vi_verbs', JSON.stringify(verbs.value));
-          }
-
-          // Notification helper
-          const notification = ref({
-            show: false,
-            message: '',
-            type: 'success',
-          });
-          function showNotification(message, type = 'success') {
-            notification.value.show = true;
-            notification.value.message = message;
-            notification.value.type = type;
-            setTimeout(() => {
-              notification.value.show = false;
-            }, 3000);
-          }
-
-          // Filter settings
-          const filters = ref({
-            search: '',
-            topicId: '',
-            status: '',
-          });
-
-          // Modal States
-          const modals = ref({
-            verb: {
-              show: false,
-              isEdit: false,
-              editId: null,
-              data: { verb: '', translation: '', topicId: '', example: '' },
-            },
-            topic: {
-              show: false,
-              isEdit: false,
-              editId: null,
-              data: { name: '', description: '' },
-            },
-            studySetup: {
-              show: false,
-              selectedTopicIds: [],
-            },
-            settings: {
-              show: false,
-            },
-            confirm: {
-              show: false,
-              title: '',
-              message: '',
-              onConfirm: null,
-            },
-          });
-
-          // Active Quiz / Study Queue
-          const studyQueue = ref([]);
-          const currentVerbIndex = ref(0);
-          const cardFlipped = ref(false);
-          const sessionGrades = ref({ hard: 0, learning: 0, mastered: 0 });
-
-          // Safe Navigations (prevents complex inline syntax errors)
-          const isDashboardTab = computed(
-            () => currentTab.value === 'dashboard',
-          );
-          const isVerbsTab = computed(() => currentTab.value === 'verbs');
-          const isTopicsTab = computed(() => currentTab.value === 'topics');
-          const isStudyTab = computed(() => currentTab.value === 'study');
-          const isRecapTab = computed(() => currentTab.value === 'recap');
-
-          // Avoid inline quote rendering by converting tab navigation classes to computed
-          const dashboardTabClass = computed(() => {
-            return currentTab.value === 'dashboard'
-              ? activeTabClass
-              : inactiveTabClass;
-          });
-          const verbsTabClass = computed(() => {
-            return currentTab.value === 'verbs'
-              ? activeTabClass
-              : inactiveTabClass;
-          });
-          const topicsTabClass = computed(() => {
-            return currentTab.value === 'topics'
-              ? activeTabClass
-              : inactiveTabClass;
-          });
-
-          // Modal Title & Button Computed Properties (Bypasses inline string quotes inside templates)
-          const verbModalTitle = computed(() => {
-            return modals.value.verb.isEdit
-              ? 'Редагувати дієслово'
-              : 'Додати нове дієслово';
-          });
-          const verbModalButtonText = computed(() => {
-            return modals.value.verb.isEdit ? 'Зберегти зміни' : 'Додати слово';
-          });
-          const topicModalTitle = computed(() => {
-            return modals.value.topic.isEdit
-              ? 'Редагувати тему'
-              : 'Створити тему';
-          });
-          const topicModalButtonText = computed(() => {
-            return modals.value.topic.isEdit ? 'Зберегти тему' : 'Створити';
-          });
-
-          // Empty checks
-          const isVerbsEmpty = computed(() => verbs.value.length === 0);
-          const isFilteredVerbsEmpty = computed(
-            () => filteredVerbs.value.length === 0,
-          );
-          const isStartStudyDisabled = computed(
-            () => modals.value.studySetup.selectedTopicIds.length === 0,
-          );
-
-          // Modals Visibility helpers
-          const isVerbModalShow = computed(() => modals.value.verb.show);
-          const isTopicModalShow = computed(() => modals.value.topic.show);
-          const isStudySetupModalShow = computed(
-            () => modals.value.studySetup.show,
-          );
-          const isNotificationShow = computed(() => notification.value.show);
-
-          // Notification UI dynamic styling
-          const notificationClass = computed(() => {
-            const isSuccess = notification.value.type === 'success';
-            return [
-              'px-5 py-3.5 rounded-xl shadow-lg border text-sm font-semibold flex items-center space-x-2.5',
-              isSuccess
-                ? 'bg-emerald-500 text-white border-emerald-400'
-                : 'bg-rose-500 text-white border-rose-400',
-            ];
-          });
-          const notificationIconClass = computed(() => {
-            return notification.value.type === 'success'
-              ? 'fa-solid fa-circle-check'
-              : 'fa-solid fa-triangle-exclamation';
-          });
-
-          // Card dynamic class
-          const cardDynamicClass = computed(() => {
-            return [
-              'w-full h-full min-h-[350px] relative preserve-3d transition-all duration-500 cursor-pointer',
-              cardFlipped.value ? 'rotate-y-180' : '',
-            ];
-          });
-
-          // Progress bar style computed inside Javascript to completely bypass HTML expression parsing
-          const progressPercent = computed(() => {
-            if (studyQueue.value.length === 0) return 0;
-            return (currentVerbIndex.value / studyQueue.value.length) * 100;
-          });
-          const progressStyle = computed(() => {
-            return { width: progressPercent.value + '%' };
-          });
-
-          const isCardNotFlipped = computed(() => !cardFlipped.value);
-
-          // Quick navigation shortcuts
-          const goToDashboard = () => changeTab('dashboard');
-          const goToVerbs = () => changeTab('verbs');
-          const goToTopics = () => changeTab('topics');
-
-          // Grades shortcuts
-          const gradeHard = () => gradeVerb('hard');
-          const gradeLearning = () => gradeVerb('learning');
-          const gradeMastered = () => gradeVerb('mastered');
-
-          // Counts
-          const totalVerbsCount = computed(() => verbs.value.length);
-          const masteredCount = computed(() =>
-            getVerbCountByStatus('mastered'),
-          );
-          const learningCount = computed(() =>
-            getVerbCountByStatus('learning'),
-          );
-          const hardCount = computed(() => getVerbCountByStatus('hard'));
-
-          const recentVerbs = computed(() => {
-            return verbs.value.slice().reverse().slice(0, 5);
-          });
-
-          // Active card
-          const currentStudyVerb = computed(() => {
-            if (studyQueue.value.length === 0) return null;
-            return studyQueue.value[currentVerbIndex.value];
-          });
-
-          // Filtering verbs for listing view
-          const filteredVerbs = computed(() => {
-            return verbs.value.filter((v) => {
-              const matchesSearch =
-                v.verb
-                  .toLowerCase()
-                  .includes(filters.value.search.toLowerCase()) ||
-                v.translation
-                  .toLowerCase()
-                  .includes(filters.value.search.toLowerCase());
-              const matchesTopic =
-                filters.value.topicId === '' ||
-                v.topicId === filters.value.topicId;
-              const matchesStatus =
-                filters.value.status === '' ||
-                v.status === filters.value.status;
-              return matchesSearch && matchesTopic && matchesStatus;
+          if (savedVerbs) {
+            const parsedVerbs = JSON.parse(savedVerbs);
+            // Залізне лікування ID та полів, якщо раптом застарілі дані
+            verbs.value = parsedVerbs.map((v, i) => {
+              if (!v.id) v.id = 'v_' + Date.now() + '_' + i;
+              if (v.repetitions === undefined) v.repetitions = 0;
+              return v;
             });
+            saveVerbsToStorage();
+          } else {
+            verbs.value = initialVerbs;
+            saveVerbsToStorage();
+          }
+        }
+
+        // LocalStorage Helpers
+        function saveTopicsToStorage() {
+          localStorage.setItem('vi_topics', JSON.stringify(topics.value));
+        }
+
+        function saveVerbsToStorage() {
+          localStorage.setItem('vi_verbs', JSON.stringify(verbs.value));
+        }
+
+        // Notification helper
+        const notification = ref({
+          show: false,
+          message: '',
+          type: 'success',
+        });
+        function showNotification(message, type = 'success') {
+          notification.value.show = true;
+          notification.value.message = message;
+          notification.value.type = type;
+          setTimeout(() => {
+            notification.value.show = false;
+          }, 3000);
+        }
+
+        // Filter settings
+        const filters = ref({
+          search: '',
+          topicId: '',
+          status: '',
+        });
+
+        // Modal States
+        const modals = ref({
+          verb: {
+            show: false,
+            isEdit: false,
+            editId: null,
+            data: { verb: '', translation: '', topicId: '', example: '' },
+          },
+          topic: {
+            show: false,
+            isEdit: false,
+            editId: null,
+            data: { name: '', description: '' },
+          },
+          studySetup: {
+            show: false,
+            selectedTopicIds: [],
+          },
+          settings: {
+            show: false,
+          },
+          confirm: {
+            show: false,
+            title: '',
+            message: '',
+            onConfirm: null,
+          },
+        });
+
+        // Active Quiz / Study Queue
+        const studyQueue = ref([]);
+        const currentVerbIndex = ref(0);
+        const cardFlipped = ref(false);
+        const sessionGrades = ref({ hard: 0, learning: 0, mastered: 0 });
+
+        // Quiz options states
+        const quizOptions = ref([]);
+        const selectedQuizOptionText = ref(null);
+        const quizAnswered = ref(false);
+
+        // Safe Navigations (prevents complex inline syntax errors)
+        const isDashboardTab = computed(
+          () => currentTab.value === 'dashboard',
+        );
+        const isVerbsTab = computed(() => currentTab.value === 'verbs');
+        const isTopicsTab = computed(() => currentTab.value === 'topics');
+        const isStudyTab = computed(() => currentTab.value === 'study');
+        const isRecapTab = computed(() => currentTab.value === 'recap');
+
+        // Avoid inline quote rendering by converting tab navigation classes to computed
+        const dashboardTabClass = computed(() => {
+          return currentTab.value === 'dashboard'
+            ? activeTabClass
+            : inactiveTabClass;
+        });
+        const verbsTabClass = computed(() => {
+          return currentTab.value === 'verbs'
+            ? activeTabClass
+            : inactiveTabClass;
+        });
+        const topicsTabClass = computed(() => {
+          return currentTab.value === 'topics'
+            ? activeTabClass
+            : inactiveTabClass;
+        });
+
+        // Modal Title & Button Computed Properties
+        const verbModalTitle = computed(() => {
+          return modals.value.verb.isEdit
+            ? 'Редагувати дієслово'
+            : 'Додати нове дієслово';
+        });
+        const verbModalButtonText = computed(() => {
+          return modals.value.verb.isEdit ? 'Зберегти зміни' : 'Додати слово';
+        });
+        const topicModalTitle = computed(() => {
+          return modals.value.topic.isEdit
+            ? 'Редагувати тему'
+            : 'Створити тему';
+        });
+        const topicModalButtonText = computed(() => {
+          return modals.value.topic.isEdit ? 'Зберегти тему' : 'Створити';
+        });
+
+        // Empty checks
+        const isVerbsEmpty = computed(() => verbs.value.length === 0);
+        const isFilteredVerbsEmpty = computed(
+          () => filteredVerbs.value.length === 0,
+        );
+        const isStartStudyDisabled = computed(
+          () => modals.value.studySetup.selectedTopicIds.length === 0,
+        );
+
+        // Modals Visibility helpers
+        const isVerbModalShow = computed(() => modals.value.verb.show);
+        const isTopicModalShow = computed(() => modals.value.topic.show);
+        const isStudySetupModalShow = computed(
+          () => modals.value.studySetup.show,
+        );
+        const isNotificationShow = computed(() => notification.value.show);
+
+        // Notification UI dynamic styling
+        const notificationClass = computed(() => {
+          const isSuccess = notification.value.type === 'success';
+          return [
+            'px-5 py-3.5 rounded-xl shadow-lg border text-sm font-semibold flex items-center space-x-2.5',
+            isSuccess
+              ? 'bg-emerald-500 text-white border-emerald-400'
+              : 'bg-rose-500 text-white border-rose-400',
+          ];
+        });
+        const notificationIconClass = computed(() => {
+          return notification.value.type === 'success'
+            ? 'fa-solid fa-circle-check'
+            : 'fa-solid fa-triangle-exclamation';
+        });
+
+        // Card dynamic class
+        const cardDynamicClass = computed(() => {
+          return [
+            'w-full h-full min-h-[350px] relative preserve-3d transition-all duration-500 cursor-pointer',
+            cardFlipped.value ? 'rotate-y-180' : '',
+          ];
+        });
+
+        // Progress bar style computed inside Javascript
+        const progressPercent = computed(() => {
+          if (studyQueue.value.length === 0) return 0;
+          return (currentVerbIndex.value / studyQueue.value.length) * 100;
+        });
+        const progressStyle = computed(() => {
+          return { width: progressPercent.value + '%' };
+        });
+
+        const isCardNotFlipped = computed(() => !cardFlipped.value);
+
+        // Quick navigation shortcuts
+        const goToDashboard = () => changeTab('dashboard');
+        const goToVerbs = () => changeTab('verbs');
+        const goToTopics = () => changeTab('topics');
+
+        // Grades shortcuts
+        const gradeHard = () => gradeVerb('hard');
+        const gradeLearning = () => gradeVerb('learning');
+        const gradeMastered = () => gradeVerb('mastered');
+
+        // Counts
+        const totalVerbsCount = computed(() => verbs.value.length);
+        const masteredCount = computed(() =>
+          getVerbCountByStatus('mastered'),
+        );
+        const learningCount = computed(() =>
+          getVerbCountByStatus('learning'),
+        );
+        const hardCount = computed(() => getVerbCountByStatus('hard'));
+
+        const recentVerbs = computed(() => {
+          return verbs.value.slice().reverse().slice(0, 5);
+        });
+
+        // Active card
+        const currentStudyVerb = computed(() => {
+          if (studyQueue.value.length === 0) return null;
+          return studyQueue.value[currentVerbIndex.value];
+        });
+
+        // Filtering verbs for listing view
+        const filteredVerbs = computed(() => {
+          return verbs.value.filter((v) => {
+            const matchesSearch =
+              v.verb
+                .toLowerCase()
+                .includes(filters.value.search.toLowerCase()) ||
+              v.translation
+                .toLowerCase()
+                .includes(filters.value.search.toLowerCase());
+            const matchesTopic =
+              filters.value.topicId === '' ||
+              v.topicId === filters.value.topicId;
+            const matchesStatus =
+              filters.value.status === '' ||
+              v.status === filters.value.status;
+            return matchesSearch && matchesTopic && matchesStatus;
           });
+        });
 
-          const isAllTopicsSelected = computed(() => {
-            return (
-              modals.value.studySetup.selectedTopicIds.length ===
-              topics.value.length
-            );
-          });
+        const isAllTopicsSelected = computed(() => {
+          return (
+            modals.value.studySetup.selectedTopicIds.length ===
+            topics.value.length
+          );
+        });
 
-          // Tab navigation
-          function changeTab(tab) {
-            currentTab.value = tab;
-          }
+        // Tab navigation
+        function changeTab(tab) {
+          currentTab.value = tab;
+        }
 
-          // Topic Helper functions
-          function getTopicName(topicId) {
-            const topic = topics.value.find((t) => t.id === topicId);
-            return topic ? topic.name : 'Невідома тема';
-          }
+        // Topic Helper functions
+        function getTopicName(topicId) {
+          const topic = topics.value.find((t) => t.id === topicId);
+          return topic ? topic.name : 'Невідома тема';
+        }
 
-          function getTopicVerbCount(topicId) {
-            return verbs.value.filter((v) => v.topicId === topicId).length;
-          }
+        function getTopicVerbCount(topicId) {
+          return verbs.value.filter((v) => v.topicId === topicId).length;
+        }
 
-          function getVerbCountByStatus(status) {
-            return verbs.value.filter((v) => v.status === status).length;
-          }
+        function getVerbCountByStatus(status) {
+          return verbs.value.filter((v) => v.status === status).length;
+        }
 
-          function getTopicDescription(topic) {
-            return topic.description || 'Опис теми відсутній';
-          }
+        function getTopicDescription(topic) {
+          return topic.description || 'Опис теми відсутній';
+        }
 
-          // Custom Confirm Helper (Replaces window.confirm completely)
-          function triggerConfirm(title, message, callback) {
-            modals.value.confirm.title = title;
-            modals.value.confirm.message = message;
-            modals.value.confirm.onConfirm = () => {
-              callback();
-              modals.value.confirm.show = false;
-            };
-            modals.value.confirm.show = true;
-          }
-
-          function closeConfirmModal() {
+        // Custom Confirm Helper (Replaces window.confirm completely)
+        function triggerConfirm(title, message, callback) {
+          modals.value.confirm.title = title;
+          modals.value.confirm.message = message;
+          modals.value.confirm.onConfirm = () => {
+            callback();
             modals.value.confirm.show = false;
-          }
+          };
+          modals.value.confirm.show = true;
+        }
 
-          // Verb Modals Controls
-          function openAddVerbModal() {
-            modals.value.verb.isEdit = false;
-            modals.value.verb.editId = null;
-            modals.value.verb.data = {
-              verb: '',
-              translation: '',
-              topicId: topics.value[0]?.id || '',
-              example: '',
+        function closeConfirmModal() {
+          modals.value.confirm.show = false;
+        }
+
+        // Verb Modals Controls
+        function openAddVerbModal() {
+          modals.value.verb.isEdit = false;
+          modals.value.verb.editId = null;
+          modals.value.verb.data = {
+            verb: '',
+            translation: '',
+            topicId: topics.value[0]?.id || '',
+            example: '',
+          };
+          modals.value.verb.show = true;
+        }
+
+        function editVerb(verb) {
+          modals.value.verb.isEdit = true;
+          modals.value.verb.editId = verb.id;
+          modals.value.verb.data = { ...verb };
+          modals.value.verb.show = true;
+        }
+
+        function closeVerbModal() {
+          modals.value.verb.show = false;
+        }
+
+        // Settings Modal Controls
+        function openSettingsModal() {
+          modals.value.settings.show = true;
+        }
+
+        function closeSettingsModal() {
+          modals.value.settings.show = false;
+        }
+
+        // Export to JSON File
+        function exportData() {
+          try {
+            const payload = {
+              app: 'VerboInterval',
+              version: '1.0',
+              exportDate: new Date().toISOString(),
+              topics: topics.value,
+              verbs: verbs.value,
             };
-            modals.value.verb.show = true;
-          }
+            const jsonString = JSON.stringify(payload, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
 
-          function editVerb(verb) {
-            modals.value.verb.isEdit = true;
-            modals.value.verb.editId = verb.id;
-            modals.value.verb.data = { ...verb };
-            modals.value.verb.show = true;
-          }
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'verbo_interval_backup.json';
+            document.body.appendChild(link);
+            link.click();
 
-          function closeVerbModal() {
-            modals.value.verb.show = false;
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showNotification('Файл резервної копії успішно скачано!');
+          } catch (e) {
+            showNotification('Не вдалося експортувати дані', 'error');
           }
+        }
 
-          // Settings Modal Controls
-          function openSettingsModal() {
-            modals.value.settings.show = true;
+        // Trigger hidden input click
+        function triggerImport() {
+          if (fileInput.value) {
+            fileInput.value.click();
           }
+        }
 
-          function closeSettingsModal() {
-            modals.value.settings.show = false;
-          }
+        // Parse and Import JSON Backup File
+        function importData(event) {
+          const targetFile = event.target.files[0];
+          if (!targetFile) return;
 
-          // Export to JSON File
-          function exportData() {
+          const reader = new FileReader();
+          reader.onload = function (e) {
             try {
-              const payload = {
-                app: 'VerboInterval',
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                topics: topics.value,
-                verbs: verbs.value,
-              };
-              const jsonString = JSON.stringify(payload, null, 2);
-              const blob = new Blob([jsonString], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
+              const parsedData = JSON.parse(e.target.result);
 
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = 'verbo_interval_backup.json';
-              document.body.appendChild(link);
-              link.click();
-
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              showNotification('Файл резервної копії успішно скачано!');
-            } catch (e) {
-              showNotification('Не вдалося експортувати дані', 'error');
-            }
-          }
-
-          // Trigger hidden input click
-          function triggerImport() {
-            if (fileInput.value) {
-              fileInput.value.click();
-            }
-          }
-
-          // Parse and Import JSON Backup File
-          function importData(event) {
-            const targetFile = event.target.files[0];
-            if (!targetFile) return;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              try {
-                const parsedData = JSON.parse(e.target.result);
-
-                // Validation checks
-                if (
-                  !parsedData.topics ||
-                  !parsedData.verbs ||
-                  !Array.isArray(parsedData.topics) ||
-                  !Array.isArray(parsedData.verbs)
-                ) {
-                  showNotification(
-                    'Помилка: Неправильний формат резервної копії!',
-                    'error',
-                  );
-                  return;
-                }
-
-                triggerConfirm(
-                  'Імпортувати дані?',
-                  'Це замінить ваші поточні дієслова та теми даними з файлу. Продовжити?',
-                  () => {
-                    topics.value = parsedData.topics;
-                    verbs.value = parsedData.verbs;
-                    saveTopicsToStorage();
-                    saveVerbsToStorage();
-                    showNotification('Усі дані успішно імпортовано!');
-                    closeSettingsModal();
-                  },
-                );
-              } catch (err) {
+              // Validation checks
+              if (
+                !parsedData.topics ||
+                !parsedData.verbs ||
+                !Array.isArray(parsedData.topics) ||
+                !Array.isArray(parsedData.verbs)
+              ) {
                 showNotification(
-                  'Не вдалося зчитати файл: Пошкоджений JSON',
+                  'Помилка: Неправильний формат резервної копії!',
                   'error',
                 );
+                return;
               }
-            };
-            reader.readAsText(targetFile);
-            // Reset file input value so same file can be imported again
-            event.target.value = '';
-          }
 
-          // Completely Reset Application Data
-          function resetAppData() {
-            triggerConfirm(
-              'Повне очищення',
-              'Ви дійсно хочете повністю видалити всі дієслова, теми та очистити статистику прогресу? Цю дію неможливо скасувати.',
-              () => {
-                localStorage.removeItem('vi_topics');
-                localStorage.removeItem('vi_verbs');
-                loadAppData();
-                showNotification('Додаток скинуто до початкових параметрів!');
-                closeSettingsModal();
-                changeTab('dashboard');
-              },
-            );
-          }
-
-          function saveVerb() {
-            const d = modals.value.verb.data;
-            if (!d.verb || !d.translation || !d.topicId) return;
-
-            const inputVerbClean = d.verb.trim();
-            const inputVerbLower = inputVerbClean.toLowerCase();
-
-            // Check for duplicates (excluding the verb being edited right now by matching IDs as strings)
-            const isDuplicate = verbs.value.some((v) => {
-              if (
-                modals.value.verb.isEdit &&
-                String(v.id) === String(modals.value.verb.editId)
-              ) {
-                return false; // Skip duplicate check for the word we are currently editing
-              }
-              return v.verb.trim().toLowerCase() === inputVerbLower;
-            });
-
-            if (isDuplicate) {
+              triggerConfirm(
+                'Імпортувати дані?',
+                'Це замінить ваші поточні дієслова та теми даними з файлу. Продовжити?',
+                () => {
+                  topics.value = parsedData.topics;
+                  verbs.value = parsedData.verbs.map((v, i) => {
+                    if (!v.id) v.id = 'v_' + Date.now() + '_' + i;
+                    return v;
+                  });
+                  saveTopicsToStorage();
+                  saveVerbsToStorage();
+                  showNotification('Усі дані успішно імпортовано!');
+                  closeSettingsModal();
+                },
+              );
+            } catch (err) {
               showNotification(
-                'Дієслово «' + inputVerbClean + '» вже є у списку!',
+                'Не вдалося зчитати файл: Пошкоджений JSON',
                 'error',
               );
-              return; // Prevent saving
             }
+          };
+          reader.readAsText(targetFile);
+          event.target.value = '';
+        }
 
-            if (modals.value.verb.isEdit) {
-              // Update
-              const index = verbs.value.findIndex(
-                (v) => String(v.id) === String(modals.value.verb.editId),
-              );
-              if (index !== -1) {
-                verbs.value[index] = {
-                  ...verbs.value[index],
-                  verb: inputVerbClean,
-                  translation: d.translation.trim(),
-                  topicId: d.topicId,
-                  example: d.example ? d.example.trim() : '',
-                };
-                showNotification('Дієслово успішно оновлено!');
-              }
-            } else {
-              // Create New
-              verbs.value.push({
-                id: 'v_' + Date.now(),
+        // Completely Reset Application Data
+        function resetAppData() {
+          triggerConfirm(
+            'Повне очищення',
+            'Ви дійсно хочете повністю видалити всі дієслова, теми та очистити статистику прогресу? Цю дію неможливо скасувати.',
+            () => {
+              localStorage.removeItem('vi_topics');
+              localStorage.removeItem('vi_verbs');
+              loadAppData();
+              showNotification('Додаток скинуто до початкових параметрів!');
+              closeSettingsModal();
+              changeTab('dashboard');
+            },
+          );
+        }
+
+        function saveVerb() {
+          const d = modals.value.verb.data;
+          if (!d.verb || !d.translation || !d.topicId) return;
+
+          const inputVerbClean = d.verb.trim();
+          const inputVerbLower = inputVerbClean.toLowerCase();
+
+          // Check for duplicates (excluding the verb being edited right now by matching IDs as strings)
+          const isDuplicate = verbs.value.some((v) => {
+            if (
+              modals.value.verb.isEdit &&
+              String(v.id) === String(modals.value.verb.editId)
+            ) {
+              return false; // Skip duplicate check for the word we are currently editing
+            }
+            return v.verb.trim().toLowerCase() === inputVerbLower;
+          });
+
+          if (isDuplicate) {
+            showNotification(
+              'Дієслово «' + inputVerbClean + '» вже є у списку!',
+              'error',
+            );
+            return;
+          }
+
+          if (modals.value.verb.isEdit) {
+            // Update
+            const index = verbs.value.findIndex(
+              (v) => String(v.id) === String(modals.value.verb.editId),
+            );
+            if (index !== -1) {
+              verbs.value[index] = {
+                ...verbs.value[index],
                 verb: inputVerbClean,
                 translation: d.translation.trim(),
                 topicId: d.topicId,
                 example: d.example ? d.example.trim() : '',
-                status: 'new',
-                repetitions: 0,
-                lastReviewed: null,
-              });
-              showNotification('Нове фразове дієслово додано!');
+              };
+              showNotification('Дієслово успішно оновлено!');
             }
-            saveVerbsToStorage();
-            closeVerbModal();
+          } else {
+            // Create New
+            verbs.value.push({
+              id: 'v_' + Date.now(),
+              verb: inputVerbClean,
+              translation: d.translation.trim(),
+              topicId: d.topicId,
+              example: d.example ? d.example.trim() : '',
+              status: 'new',
+              repetitions: 0,
+              lastReviewed: null,
+            });
+            showNotification('Нове фразове дієслово додано!');
           }
+          saveVerbsToStorage();
+          closeVerbModal();
+        }
 
-          function deleteVerb(id) {
+        // Delete verb
+        function deleteVerb(id) {
+          triggerConfirm(
+            'Видалення дієслова',
+            'Ви впевнені, що хочете остаточно видалити це дієслово з бібліотеки?',
+            () => {
+              verbs.value = verbs.value.filter((v) => v.id !== id);
+              saveVerbsToStorage();
+              showNotification('Дієслово видалено.');
+            },
+          );
+        }
+
+        // Topic Modals Controls
+        function openAddTopicModal() {
+          modals.value.topic.isEdit = false;
+          modals.value.topic.editId = null;
+          modals.value.topic.data = { name: '', description: '' };
+          modals.value.topic.show = true;
+        }
+
+        function editTopic(topic) {
+          modals.value.topic.isEdit = true;
+          modals.value.topic.editId = topic.id;
+          modals.value.topic.data = { ...topic };
+          modals.value.topic.show = true;
+        }
+
+        function closeTopicModal() {
+          modals.value.topic.show = false;
+        }
+
+        function saveTopic() {
+          const d = modals.value.topic.data;
+          if (!d.name) return;
+
+          if (modals.value.topic.isEdit) {
+            const index = topics.value.findIndex(
+              (t) => t.id === modals.value.topic.editId,
+            );
+            if (index !== -1) {
+              topics.value[index] = {
+                ...topics.value[index],
+                name: d.name,
+                description: d.description,
+              };
+              showNotification('Тему успішно оновлено!');
+            }
+          } else {
+            topics.value.push({
+              id: 't_' + Date.now(),
+              name: d.name,
+              description: d.description,
+            });
+            showNotification('Нову тему створено!');
+          }
+          saveTopicsToStorage();
+          closeTopicModal();
+        }
+
+        function deleteTopic(id) {
+          const count = getTopicVerbCount(id);
+          if (count > 0) {
             triggerConfirm(
-              'Видалення дієслова',
-              'Ви впевнені, що хочете остаточно видалити це дієслово з бібліотеки?',
+              'Видалення теми',
+              'Ця тема містить ' +
+              count +
+              ' дієслів. При її видаленні ці слова залишаться без теми. Продовжити?',
               () => {
-                verbs.value = verbs.value.filter((v) => v.id !== id);
+                verbs.value.forEach((v) => {
+                  if (v.topicId === id) v.topicId = '';
+                });
+                topics.value = topics.value.filter((t) => t.id !== id);
+                saveTopicsToStorage();
                 saveVerbsToStorage();
-                showNotification('Дієслово видалено.');
+                showNotification('Тему видалено.');
+              },
+            );
+          } else {
+            triggerConfirm(
+              'Видалення теми',
+              'Ви впевнені, що хочете видалити цю порожню тему?',
+              () => {
+                topics.value = topics.value.filter((t) => t.id !== id);
+                saveTopicsToStorage();
+                showNotification('Тему видалено.');
               },
             );
           }
+        }
 
-          // Topic Modals Controls
-          function openAddTopicModal() {
-            modals.value.topic.isEdit = false;
-            modals.value.topic.editId = null;
-            modals.value.topic.data = { name: '', description: '' };
-            modals.value.topic.show = true;
-          }
+        // Study Session Setup
+        function openStudySetup() {
+          modals.value.studySetup.selectedTopicIds = topics.value.map(
+            (t) => t.id,
+          );
+          modals.value.studySetup.show = true;
+        }
 
-          function editTopic(topic) {
-            modals.value.topic.isEdit = true;
-            modals.value.topic.editId = topic.id;
-            modals.value.topic.data = { ...topic };
-            modals.value.topic.show = true;
-          }
+        function openStudyWithTopic(topicId) {
+          modals.value.studySetup.selectedTopicIds = [topicId];
+          startStudySession();
+        }
 
-          function closeTopicModal() {
-            modals.value.topic.show = false;
-          }
+        function closeStudySetupModal() {
+          modals.value.studySetup.show = false;
+        }
 
-          function saveTopic() {
-            const d = modals.value.topic.data;
-            if (!d.name) return;
-
-            if (modals.value.topic.isEdit) {
-              const index = topics.value.findIndex(
-                (t) => t.id === modals.value.topic.editId,
-              );
-              if (index !== -1) {
-                topics.value[index] = {
-                  ...topics.value[index],
-                  name: d.name,
-                  description: d.description,
-                };
-                showNotification('Тему успішно оновлено!');
-              }
-            } else {
-              topics.value.push({
-                id: 't_' + Date.now(),
-                name: d.name,
-                description: d.description,
-              });
-              showNotification('Нову тему створено!');
-            }
-            saveTopicsToStorage();
-            closeTopicModal();
-          }
-
-          function deleteTopic(id) {
-            const count = getTopicVerbCount(id);
-            if (count > 0) {
-              triggerConfirm(
-                'Видалення теми',
-                'Ця тема містить ' +
-                  count +
-                  ' дієслів. При її видаленні ці слова залишаться без теми. Продовжити?',
-                () => {
-                  verbs.value.forEach((v) => {
-                    if (v.topicId === id) v.topicId = '';
-                  });
-                  topics.value = topics.value.filter((t) => t.id !== id);
-                  saveTopicsToStorage();
-                  saveVerbsToStorage();
-                  showNotification('Тему видалено.');
-                },
-              );
-            } else {
-              triggerConfirm(
-                'Видалення теми',
-                'Ви впевнені, що хочете видалити цю порожню тему?',
-                () => {
-                  topics.value = topics.value.filter((t) => t.id !== id);
-                  saveTopicsToStorage();
-                  showNotification('Тему видалено.');
-                },
-              );
-            }
-          }
-
-          // Study Session Setup
-          function openStudySetup() {
+        function toggleSelectAllTopics() {
+          if (isAllTopicsSelected.value) {
+            modals.value.studySetup.selectedTopicIds = [];
+          } else {
             modals.value.studySetup.selectedTopicIds = topics.value.map(
               (t) => t.id,
             );
-            modals.value.studySetup.show = true;
           }
+        }
 
-          function openStudyWithTopic(topicId) {
-            modals.value.studySetup.selectedTopicIds = [topicId];
-            startStudySession();
-          }
-
-          function closeStudySetupModal() {
-            modals.value.studySetup.show = false;
-          }
-
-          function toggleSelectAllTopics() {
-            if (isAllTopicsSelected.value) {
-              modals.value.studySetup.selectedTopicIds = [];
-            } else {
-              modals.value.studySetup.selectedTopicIds = topics.value.map(
-                (t) => t.id,
-              );
-            }
-          }
-
-          // Generate Study Queue using Spaced Repetition Scoring weights
-          function startStudySession() {
-            const selectedIds = modals.value.studySetup.selectedTopicIds;
-            if (selectedIds.length === 0) {
-              showNotification(
-                'Будь ласка, оберіть хоча б одну тему!',
-                'error',
-              );
-              return;
-            }
-
-            let pool = verbs.value.filter((v) =>
-              selectedIds.includes(v.topicId),
+        // Generate Study Queue using Spaced Repetition Scoring weights
+        function startStudySession() {
+          const selectedIds = modals.value.studySetup.selectedTopicIds;
+          if (selectedIds.length === 0) {
+            showNotification(
+              'Будь ласка, оберіть хоча б одну тему!',
+              'error',
             );
+            return;
+          }
 
-            if (pool.length === 0) {
-              showNotification(
-                'В обраних темах немає доданих дієслів!',
-                'error',
-              );
-              return;
+          let pool = verbs.value.filter((v) =>
+            selectedIds.includes(v.topicId),
+          );
+
+          if (pool.length === 0) {
+            showNotification(
+              'В обраних темах немає доданих дієслів!',
+              'error',
+            );
+            return;
+          }
+
+          // Spaced Repetition Strategy:
+          const getWeight = (status) => {
+            switch (status) {
+              case 'hard':
+                return 4;
+              case 'new':
+                return 3;
+              case 'learning':
+                return 2;
+              case 'mastered':
+                return 0.5;
+              default:
+                return 1;
             }
+          };
 
-            // Spaced Repetition Priority Strategy:
-            const getWeight = (status) => {
-              switch (status) {
-                case 'hard':
-                  return 4;
-                case 'new':
-                  return 3;
-                case 'learning':
-                  return 2;
-                case 'mastered':
-                  return 0.5;
-                default:
-                  return 1;
-              }
-            };
+          const scoredPool = pool.map((v) => ({
+            verb: v,
+            score: getWeight(v.status) * (0.6 + Math.random() * 0.8),
+          }));
 
-            const scoredPool = pool.map((v) => ({
-              verb: v,
-              score: getWeight(v.status) * (0.6 + Math.random() * 0.8),
-            }));
+          scoredPool.sort((a, b) => b.score - a.score);
+          const chosen = scoredPool.slice(0, 10).map((item) => item.verb);
+          studyQueue.value = chosen.sort(() => Math.random() - 0.5);
 
-            scoredPool.sort((a, b) => b.score - a.score);
-            const chosen = scoredPool.slice(0, 10).map((item) => item.verb);
-            studyQueue.value = chosen.sort(() => Math.random() - 0.5);
+          currentVerbIndex.value = 0;
+          cardFlipped.value = false;
+          sessionGrades.value = { hard: 0, learning: 0, mastered: 0 };
 
-            currentVerbIndex.value = 0;
+          modals.value.studySetup.show = false;
+
+          // Ініціалізувати запитання, якщо обрано режим тестування
+          if (studyMode.value === 'quiz') {
+            generateQuizQuestion();
+          }
+
+          changeTab('study');
+        }
+
+        function flipCard() {
+          cardFlipped.value = !cardFlipped.value;
+        }
+
+        // Spaced Repetition Grading (for Cards mode)
+        function gradeVerb(grade) {
+          const currentVerb = currentStudyVerb.value;
+          if (!currentVerb) return;
+
+          sessionGrades.value[grade]++;
+
+          const index = verbs.value.findIndex(
+            (v) => String(v.id) === String(currentVerb.id),
+          );
+          if (index !== -1) {
+            verbs.value[index].status = grade;
+            verbs.value[index].lastReviewed = new Date().toISOString();
+            verbs.value[index].repetitions =
+              (verbs.value[index].repetitions || 0) + 1;
+          }
+
+          saveVerbsToStorage();
+
+          if (currentVerbIndex.value + 1 < studyQueue.value.length) {
             cardFlipped.value = false;
-            sessionGrades.value = { hard: 0, learning: 0, mastered: 0 };
+            setTimeout(() => {
+              currentVerbIndex.value++;
+            }, 250);
+          } else {
+            cardFlipped.value = false;
+            setTimeout(() => {
+              changeTab('recap');
+            }, 250);
+          }
+        }
 
-            modals.value.studySetup.show = false;
-            changeTab('study');
+        // ================= QUIZ ENGINE =================
+        const correctQuizAnswer = computed(() => {
+          const item = currentStudyVerb.value;
+          if (!item) return '';
+          return studyDirection.value === 'en_to_ua' ? item.translation : item.verb;
+        });
+
+        const isQuizAnswerCorrect = computed(() => {
+          return selectedQuizOptionText.value === correctQuizAnswer.value;
+        });
+
+        function generateQuizQuestion() {
+          selectedQuizOptionText.value = null;
+          quizAnswered.value = false;
+
+          const correctVal = correctQuizAnswer.value;
+          if (!correctVal) return;
+
+          // Отримати список дистракторів (неправильних варіантів) з усієї бази
+          let distractorsPool = [];
+          if (studyDirection.value === 'en_to_ua') {
+            distractorsPool = verbs.value
+              .map((v) => v.translation)
+              .filter((t) => t !== correctVal);
+          } else {
+            distractorsPool = verbs.value
+              .map((v) => v.verb)
+              .filter((v_eng) => v_eng !== correctVal);
           }
 
-          function flipCard() {
-            cardFlipped.value = !cardFlipped.value;
+          // Усуваємо дублікати серед дистракторів
+          distractorsPool = [...new Set(distractorsPool)];
+
+          // Перемішуємо і беремо 3 випадкових
+          distractorsPool.sort(() => Math.random() - 0.5);
+          const chosenDistractors = distractorsPool.slice(0, 3);
+
+          // Формуємо фінальний список з 4 варіантів відповідей
+          const finalOptions = [correctVal, ...chosenDistractors];
+          finalOptions.sort(() => Math.random() - 0.5);
+
+          // Якщо у базі мало унікальних слів для формування 4 варіантів - доповнюємо заглушками
+          while (finalOptions.length < 4) {
+            const fallbackText =
+              studyDirection.value === 'en_to_ua' ? 'інший варіант' : 'other choice';
+            finalOptions.push(fallbackText + ' (' + finalOptions.length + ')');
           }
 
-          // Grade Phrasal Verb performance
-          function gradeVerb(grade) {
-            const currentVerb = currentStudyVerb.value;
-            if (!currentVerb) return;
+          quizOptions.value = finalOptions;
+        }
 
-            sessionGrades.value[grade]++;
+        function selectQuizOption(option) {
+          if (quizAnswered.value) return;
+          selectedQuizOptionText.value = option;
+          quizAnswered.value = true;
 
+          const currentVerb = currentStudyVerb.value;
+          if (!currentVerb) return;
+
+          // Логіка: при помилці - скидання статусу до 'new'
+          if (option !== correctQuizAnswer.value) {
+            sessionGrades.value.hard++;
             const index = verbs.value.findIndex(
               (v) => String(v.id) === String(currentVerb.id),
             );
             if (index !== -1) {
-              verbs.value[index].status = grade;
+              verbs.value[index].status = 'new';
               verbs.value[index].lastReviewed = new Date().toISOString();
               verbs.value[index].repetitions =
                 (verbs.value[index].repetitions || 0) + 1;
             }
-
             saveVerbsToStorage();
-
-            if (currentVerbIndex.value + 1 < studyQueue.value.length) {
-              cardFlipped.value = false;
-              setTimeout(() => {
-                currentVerbIndex.value++;
-              }, 250);
-            } else {
-              cardFlipped.value = false;
-              setTimeout(() => {
-                changeTab('recap');
-              }, 250);
-            }
           }
+        }
 
-          function quitStudySession() {
-            triggerConfirm(
-              'Завершити сесію?',
-              'Ви впевнені, що хочете достроково припинити тренування? Вже оцінені картки збережуть свій новий статус.',
-              () => {
-                changeTab('dashboard');
-              },
-            );
+        function handleQuizCorrectAction(isMastered) {
+          const currentVerb = currentStudyVerb.value;
+          if (!currentVerb) return;
+
+          const finalGrade = isMastered ? 'mastered' : 'learning';
+          sessionGrades.value[finalGrade]++;
+
+          const index = verbs.value.findIndex(
+            (v) => String(v.id) === String(currentVerb.id),
+          );
+          if (index !== -1) {
+            verbs.value[index].status = finalGrade;
+            verbs.value[index].lastReviewed = new Date().toISOString();
+            verbs.value[index].repetitions =
+              (verbs.value[index].repetitions || 0) + 1;
           }
+          saveVerbsToStorage();
+          nextQuizQuestion();
+        }
 
-          // Styling Helpers
-          function getStatusBadgeClass(status) {
-            switch (status) {
-              case 'new':
-                return 'bg-blue-50 text-blue-700 border border-blue-100';
-              case 'learning':
-                return 'bg-amber-50 text-amber-700 border border-amber-100';
-              case 'mastered':
-                return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
-              case 'hard':
-                return 'bg-rose-50 text-rose-700 border border-rose-100';
-              default:
-                return 'bg-slate-50 text-slate-700';
-            }
+        function nextQuizQuestion() {
+          if (currentVerbIndex.value + 1 < studyQueue.value.length) {
+            currentVerbIndex.value++;
+            generateQuizQuestion();
+          } else {
+            changeTab('recap');
           }
+        }
 
-          function getStatusLabel(status) {
-            switch (status) {
-              case 'new':
-                return 'Нове слово';
-              case 'learning':
-                return 'Вчу (Середнє)';
-              case 'mastered':
-                return 'Знаю (Легко)';
-              case 'hard':
-                return 'Повторити знову';
-              default:
-                return 'Нове';
-            }
+        function getQuizOptionClass(option) {
+          const base = 'w-full p-4 rounded-2xl border text-left font-medium text-sm sm:text-base transition-all flex items-center justify-between ';
+          if (!quizAnswered.value) {
+            return base + 'bg-white border-slate-200 text-slate-700 hover:border-indigo-400 hover:bg-indigo-50/10';
           }
+          // Якщо відповіли:
+          if (option === correctQuizAnswer.value) {
+            return base + 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold ring-2 ring-emerald-200';
+          }
+          if (option === selectedQuizOptionText.value && option !== correctQuizAnswer.value) {
+            return base + 'bg-rose-50 border-rose-400 text-rose-900 font-bold';
+          }
+          return base + 'bg-slate-50 border-slate-100 text-slate-400 cursor-not-allowed';
+        }
 
-          return {
-            currentTab,
-            topics,
-            verbs,
-            filters,
-            modals,
-            studyQueue,
-            currentVerbIndex,
-            cardFlipped,
-            sessionGrades,
-            currentStudyVerb,
-            filteredVerbs,
-            isAllTopicsSelected,
-            notification,
-            fileInput,
+        // =============================================
 
-            // Pure computed properties for templates
-            isDashboardTab,
-            isVerbsTab,
-            isTopicsTab,
-            isStudyTab,
-            isRecapTab,
-            isVerbsEmpty,
-            isFilteredVerbsEmpty,
-            isStartStudyDisabled,
-            isVerbModalShow,
-            isTopicModalShow,
-            isStudySetupModalShow,
-            isNotificationShow,
-            verbModalTitle,
-            verbModalButtonText,
-            topicModalTitle,
-            topicModalButtonText,
-            notificationClass,
-            notificationIconClass,
-            cardDynamicClass,
-            progressStyle,
-            isCardNotFlipped,
-            totalVerbsCount,
-            masteredCount,
-            learningCount,
-            hardCount,
-            recentVerbs,
+        function quitStudySession() {
+          triggerConfirm(
+            'Завершити сесію?',
+            'Ви впевнені, що хочете достроково припинити тренування? Вже оцінені картки збережуть свій новий статус.',
+            () => {
+              changeTab('dashboard');
+            },
+          );
+        }
 
-            // Computed styles and classes to bypass template literal parsing
-            dashboardTabClass,
-            verbsTabClass,
-            topicsTabClass,
+        // Styling Helpers
+        function getStatusBadgeClass(status) {
+          switch (status) {
+            case 'new':
+              return 'bg-blue-50 text-blue-700 border border-blue-100';
+            case 'learning':
+              return 'bg-amber-50 text-amber-700 border border-amber-100';
+            case 'mastered':
+              return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+            case 'hard':
+              return 'bg-rose-50 text-rose-700 border border-rose-100';
+            default:
+              return 'bg-slate-50 text-slate-700';
+          }
+        }
 
-            // Shortcuts
-            goToDashboard,
-            goToVerbs,
-            goToTopics,
-            gradeHard,
-            gradeLearning,
-            gradeMastered,
+        function getStatusLabel(status) {
+          switch (status) {
+            case 'new':
+              return 'Нове слово';
+            case 'learning':
+              return 'Вчу (Середнє)';
+            case 'mastered':
+              return 'Знаю (Легко)';
+            case 'hard':
+              return 'Повторити знову';
+            default:
+              return 'Нове';
+          }
+        }
 
-            // Standard helper functions
-            getTopicName,
-            getTopicVerbCount,
-            getTopicDescription,
-            getVerbCountByStatus,
-            openAddVerbModal,
-            editVerb,
-            closeVerbModal,
-            saveVerb,
-            deleteVerb,
-            openAddTopicModal,
-            editTopic,
-            closeTopicModal,
-            saveTopic,
-            deleteTopic,
-            openStudySetup,
-            openStudyWithTopic,
-            closeStudySetupModal,
-            toggleSelectAllTopics,
-            startStudySession,
-            flipCard,
-            quitStudySession,
-            getStatusBadgeClass,
-            getStatusLabel,
-            closeConfirmModal,
+        return {
+          currentTab,
+          topics,
+          verbs,
+          filters,
+          modals,
+          studyQueue,
+          currentVerbIndex,
+          cardFlipped,
+          sessionGrades,
+          currentStudyVerb,
+          filteredVerbs,
+          isAllTopicsSelected,
+          notification,
+          fileInput,
 
-            // Settings, Import & Export
-            openSettingsModal,
-            closeSettingsModal,
-            exportData,
-            triggerImport,
-            importData,
-            resetAppData,
-          };
-        },
-      }).mount('#app');
-    </script>
-  </body>
+          // Quiz & Directions
+          studyMode,
+          studyDirection,
+          quizOptions,
+          selectedQuizOptionText,
+          quizAnswered,
+          correctQuizAnswer,
+          isQuizAnswerCorrect,
+          selectQuizOption,
+          handleQuizCorrectAction,
+          nextQuizQuestion,
+          getQuizOptionClass,
+
+          // Pure computed properties for templates
+          isDashboardTab,
+          isVerbsTab,
+          isTopicsTab,
+          isStudyTab,
+          isRecapTab,
+          isVerbsEmpty,
+          isFilteredVerbsEmpty,
+          isStartStudyDisabled,
+          isVerbModalShow,
+          isTopicModalShow,
+          isStudySetupModalShow,
+          isNotificationShow,
+          verbModalTitle,
+          verbModalButtonText,
+          topicModalTitle,
+          topicModalButtonText,
+          notificationClass,
+          notificationIconClass,
+          cardDynamicClass,
+          progressStyle,
+          isCardNotFlipped,
+          totalVerbsCount,
+          masteredCount,
+          learningCount,
+          hardCount,
+          recentVerbs,
+
+          // Computed styles and classes to bypass template literal parsing
+          dashboardTabClass,
+          verbsTabClass,
+          topicsTabClass,
+
+          // Shortcuts
+          goToDashboard,
+          goToVerbs,
+          goToTopics,
+          gradeHard,
+          gradeLearning,
+          gradeMastered,
+
+          // Standard helper functions
+          getTopicName,
+          getTopicVerbCount,
+          getTopicDescription,
+          getVerbCountByStatus,
+          openAddVerbModal,
+          editVerb,
+          closeVerbModal,
+          saveVerb,
+          deleteVerb,
+          openAddTopicModal,
+          editTopic,
+          closeTopicModal,
+          saveTopic,
+          deleteTopic,
+          openStudySetup,
+          openStudyWithTopic,
+          closeStudySetupModal,
+          toggleSelectAllTopics,
+          startStudySession,
+          flipCard,
+          quitStudySession,
+          getStatusBadgeClass,
+          getStatusLabel,
+          closeConfirmModal,
+
+          // Settings, Import & Export
+          openSettingsModal,
+          closeSettingsModal,
+          exportData,
+          triggerImport,
+          importData,
+          resetAppData,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+
 </html>
