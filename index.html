@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
@@ -50,7 +51,7 @@
             <!-- Logo -->
             <div
               class="flex items-center space-x-3 cursor-pointer"
-              @click="changeTab('dashboard')"
+              @click="goToDashboard"
             >
               <div class="bg-indigo-500 p-2 rounded-xl text-white">
                 <i class="fa-solid fa-brain text-xl"></i>
@@ -64,21 +65,15 @@
             <!-- Nav Links -->
             <nav class="hidden md:flex space-x-1">
               <button
-                @click="changeTab('dashboard')"
-                :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors', currentTab === 'dashboard' ? 'bg-indigo-800 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-800/50']"
+                @click="goToDashboard"
+                :class="getNavTabClass('dashboard')"
               >
                 <i class="fa-solid fa-house mr-2"></i>Панель
               </button>
-              <button
-                @click="changeTab('verbs')"
-                :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors', currentTab === 'verbs' ? 'bg-indigo-800 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-800/50']"
-              >
+              <button @click="goToVerbs" :class="getNavTabClass('verbs')">
                 <i class="fa-solid fa-list mr-2"></i>Дієслова
               </button>
-              <button
-                @click="changeTab('topics')"
-                :class="['px-4 py-2 rounded-xl text-sm font-medium transition-colors', currentTab === 'topics' ? 'bg-indigo-800 text-white' : 'text-indigo-200 hover:text-white hover:bg-indigo-800/50']"
-              >
+              <button @click="goToTopics" :class="getNavTabClass('topics')">
                 <i class="fa-solid fa-tags mr-2"></i>Теми
               </button>
             </nav>
@@ -90,7 +85,7 @@
                 <i
                   class="fa-solid fa-graduation-cap text-indigo-400 mr-1.5"
                 ></i>
-                {{ verbs.length }} дієслів
+                {{ totalVerbsCount }} дієслів
               </span>
             </div>
           </div>
@@ -101,7 +96,7 @@
         class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8"
       >
         <!-- DASHBOARD VIEW -->
-        <div v-if="currentTab === 'dashboard'" class="space-y-8">
+        <div v-if="isDashboardTab" class="space-y-8">
           <!-- Hero banner and setup for quick session -->
           <div
             class="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
@@ -125,7 +120,7 @@
                 дієслів.
               </p>
               <button
-                @click="openStudySetup()"
+                @click="openStudySetup"
                 class="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-900/30 flex items-center space-x-2 transition-all transform hover:-translate-y-0.5"
               >
                 <i class="fa-solid fa-play text-lg"></i>
@@ -149,7 +144,7 @@
                   Всього дієслів
                 </div>
                 <div class="text-2xl font-bold text-slate-800">
-                  {{ verbs.length }}
+                  {{ totalVerbsCount }}
                 </div>
               </div>
             </div>
@@ -166,7 +161,7 @@
                   Засвоєно (Легкі)
                 </div>
                 <div class="text-2xl font-bold text-slate-800">
-                  {{ getVerbCountByStatus('mastered') }}
+                  {{ masteredCount }}
                 </div>
               </div>
             </div>
@@ -183,7 +178,7 @@
                   В процесі (Середні)
                 </div>
                 <div class="text-2xl font-bold text-slate-800">
-                  {{ getVerbCountByStatus('learning') }}
+                  {{ learningCount }}
                 </div>
               </div>
             </div>
@@ -200,7 +195,7 @@
                   Потребують повторення
                 </div>
                 <div class="text-2xl font-bold text-slate-800">
-                  {{ getVerbCountByStatus('hard') }}
+                  {{ hardCount }}
                 </div>
               </div>
             </div>
@@ -215,7 +210,7 @@
               <div class="flex items-center justify-between">
                 <h2 class="font-bold text-lg text-slate-800">Активні теми</h2>
                 <button
-                  @click="changeTab('topics')"
+                  @click="goToTopics"
                   class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
                 >
                   Всі теми
@@ -227,7 +222,7 @@
                   v-for="topic in topics"
                   :key="topic.id"
                   class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-100 transition-all cursor-pointer"
-                  @click="openStudySetupWithTopic(topic.id)"
+                  @click="openStudyWithTopic(topic.id)"
                 >
                   <div class="flex items-center space-x-3 min-w-0">
                     <span
@@ -242,7 +237,7 @@
                         {{ topic.name }}
                       </div>
                       <div class="text-xs text-slate-400 truncate">
-                        {{ topic.description || "Без опису" }}
+                        {{ getTopicDescription(topic) }}
                       </div>
                     </div>
                   </div>
@@ -253,7 +248,7 @@
               </div>
 
               <button
-                @click="openAddVerbModal()"
+                @click="openAddVerbModal"
                 class="w-full py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl text-sm transition-colors flex items-center justify-center space-x-2"
               >
                 <i class="fa-solid fa-plus"></i>
@@ -270,7 +265,7 @@
                   Перелік останніх доданих слів
                 </h2>
                 <button
-                  @click="changeTab('verbs')"
+                  @click="goToVerbs"
                   class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
                 >
                   Керувати словами
@@ -278,7 +273,7 @@
               </div>
 
               <div
-                v-if="verbs.length === 0"
+                v-if="isVerbsEmpty"
                 class="text-center py-12 text-slate-400 space-y-2"
               >
                 <i class="fa-regular fa-folder-open text-4xl"></i>
@@ -286,7 +281,7 @@
               </div>
               <div v-else class="space-y-2 overflow-y-auto max-h-[360px] pr-1">
                 <div
-                  v-for="verb in verbs.slice().reverse().slice(0, 5)"
+                  v-for="verb in recentVerbs"
                   :key="verb.id"
                   class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-xl transition-all space-y-2 sm:space-y-0"
                 >
@@ -329,7 +324,7 @@
         </div>
 
         <!-- VERBS MANAGEMENT VIEW -->
-        <div v-if="currentTab === 'verbs'" class="space-y-6">
+        <div v-if="isVerbsTab" class="space-y-6">
           <div
             class="flex flex-col md:flex-row md:items-center justify-between gap-4"
           >
@@ -343,7 +338,7 @@
               </p>
             </div>
             <button
-              @click="openAddVerbModal()"
+              @click="openAddVerbModal"
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto"
             >
               <i class="fa-solid fa-plus"></i>
@@ -412,7 +407,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
-                  <tr v-if="filteredVerbs.length === 0">
+                  <tr v-if="isFilteredVerbsEmpty">
                     <td colspan="5" class="p-12 text-center text-slate-400">
                       <div class="flex flex-col items-center space-y-2">
                         <i class="fa-regular fa-folder-open text-4xl"></i>
@@ -480,7 +475,7 @@
         </div>
 
         <!-- TOPICS VIEW -->
-        <div v-if="currentTab === 'topics'" class="space-y-6">
+        <div v-if="isTopicsTab" class="space-y-6">
           <div
             class="flex flex-col md:flex-row md:items-center justify-between gap-4"
           >
@@ -493,7 +488,7 @@
               </p>
             </div>
             <button
-              @click="openAddTopicModal()"
+              @click="openAddTopicModal"
               class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 self-start md:self-auto"
             >
               <i class="fa-solid fa-plus"></i>
@@ -529,7 +524,7 @@
                 <p
                   class="text-sm text-slate-500 mt-2 line-clamp-2 min-h-[40px]"
                 >
-                  {{ topic.description || "Немає опису для цієї теми" }}
+                  {{ getTopicDescription(topic) }}
                 </p>
               </div>
 
@@ -537,7 +532,7 @@
                 class="flex items-center justify-between mt-6 pt-4 border-t border-slate-50"
               >
                 <button
-                  @click="openStudySetupWithTopic(topic.id)"
+                  @click="openStudyWithTopic(topic.id)"
                   class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-xl transition-all"
                 >
                   <i class="fa-solid fa-circle-play mr-1"></i>
@@ -566,11 +561,11 @@
         </div>
 
         <!-- ACTIVE STUDY SESSION -->
-        <div v-if="currentTab === 'study'" class="max-w-xl mx-auto space-y-6">
+        <div v-if="isStudyTab" class="max-w-xl mx-auto space-y-6">
           <!-- Study Header -->
           <div class="flex items-center justify-between">
             <button
-              @click="quitStudySession()"
+              @click="quitStudySession"
               class="text-slate-500 hover:text-slate-700 font-medium text-sm flex items-center space-x-1.5 bg-slate-200/50 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all"
             >
               <i class="fa-solid fa-xmark"></i>
@@ -585,7 +580,7 @@
           <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
             <div
               class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
-              :style="{ width: ((currentVerbIndex) / studyQueue.length * 100) + '%' }"
+              :style="{ width: progressPercent + '%' }"
             ></div>
           </div>
 
@@ -594,10 +589,7 @@
             class="perspective-1000 w-full min-h-[350px]"
             v-if="currentStudyVerb"
           >
-            <div
-              :class="['w-full h-full min-h-[350px] relative preserve-3d transition-all duration-500 cursor-pointer', cardFlipped ? 'rotate-y-180' : '']"
-              @click="flipCard()"
-            >
+            <div :class="cardDynamicClass" @click="flipCard">
               <!-- Card Front (English Verb) -->
               <div
                 class="absolute inset-0 w-full h-full bg-white rounded-3xl p-8 shadow-md border border-indigo-100 flex flex-col justify-between backface-hidden"
@@ -690,8 +682,8 @@
           <div class="space-y-4">
             <!-- If not flipped, show Reveal button -->
             <button
-              v-if="!cardFlipped"
-              @click="flipCard()"
+              v-if="isCardNotFlipped"
+              @click="flipCard"
               class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition-colors flex items-center justify-center space-x-2 text-base"
             >
               <i class="fa-solid fa-eye"></i>
@@ -708,7 +700,7 @@
               <div class="grid grid-cols-3 gap-3">
                 <!-- HARD -->
                 <button
-                  @click="gradeVerb('hard')"
+                  @click="gradeHard"
                   class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
                 >
                   <span class="text-lg font-bold">🔴 Важко</span>
@@ -719,7 +711,7 @@
                 </button>
                 <!-- MEDIUM -->
                 <button
-                  @click="gradeVerb('learning')"
+                  @click="gradeLearning"
                   class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
                 >
                   <span class="text-lg font-bold">🟡 Середнє</span>
@@ -730,7 +722,7 @@
                 </button>
                 <!-- EASY -->
                 <button
-                  @click="gradeVerb('mastered')"
+                  @click="gradeMastered"
                   class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-4 rounded-2xl transition-all flex flex-col items-center justify-center space-y-1"
                 >
                   <span class="text-lg font-bold">🟢 Легко</span>
@@ -746,7 +738,7 @@
 
         <!-- RECAP SESSION SCREEN -->
         <div
-          v-if="currentTab === 'recap'"
+          v-if="isRecapTab"
           class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-md border border-slate-100 text-center space-y-6"
         >
           <div class="inline-flex p-4 bg-indigo-50 text-indigo-600 rounded-2xl">
@@ -804,13 +796,13 @@
             class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-slate-100"
           >
             <button
-              @click="openStudySetup()"
+              @click="openStudySetup"
               class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl transition-all"
             >
               Почати іншу сесію
             </button>
             <button
-              @click="changeTab('dashboard')"
+              @click="goToDashboard"
               class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-6 py-3 rounded-xl transition-all"
             >
               Повернутися до Панелі
@@ -831,7 +823,7 @@
 
       <!-- MODAL: ADD / EDIT VERB -->
       <div
-        v-if="modals.verb.show"
+        v-if="isVerbModalShow"
         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       >
         <div
@@ -840,12 +832,9 @@
           <div
             class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
           >
-            <h3 class="font-bold text-lg">
-              {{ modals.verb.isEdit ? 'Редагувати дієслово' : 'Додати нове
-              дієслово' }}
-            </h3>
+            <h3 class="font-bold text-lg">{{ verbModalTitle }}</h3>
             <button
-              @click="closeVerbModal()"
+              @click="closeVerbModal"
               class="text-indigo-200 hover:text-white transition-colors"
             >
               <i class="fa-solid fa-xmark text-lg"></i>
@@ -923,7 +912,7 @@
             >
               <button
                 type="button"
-                @click="closeVerbModal()"
+                @click="closeVerbModal"
                 class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
               >
                 Скасувати
@@ -932,7 +921,7 @@
                 type="submit"
                 class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
               >
-                {{ modals.verb.isEdit ? 'Зберегти зміни' : 'Додати слово' }}
+                {{ verbModalButtonText }}
               </button>
             </div>
           </form>
@@ -941,7 +930,7 @@
 
       <!-- MODAL: ADD / EDIT TOPIC -->
       <div
-        v-if="modals.topic.show"
+        v-if="isTopicModalShow"
         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       >
         <div
@@ -950,11 +939,9 @@
           <div
             class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
           >
-            <h3 class="font-bold text-lg">
-              {{ modals.topic.isEdit ? 'Редагувати тему' : 'Створити тему' }}
-            </h3>
+            <h3 class="font-bold text-lg">{{ topicModalTitle }}</h3>
             <button
-              @click="closeTopicModal()"
+              @click="closeTopicModal"
               class="text-indigo-200 hover:text-white transition-colors"
             >
               <i class="fa-solid fa-xmark text-lg"></i>
@@ -996,7 +983,7 @@
             >
               <button
                 type="button"
-                @click="closeTopicModal()"
+                @click="closeTopicModal"
                 class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
               >
                 Скасувати
@@ -1005,7 +992,7 @@
                 type="submit"
                 class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
               >
-                {{ modals.topic.isEdit ? 'Зберегти тему' : 'Створити' }}
+                {{ topicModalButtonText }}
               </button>
             </div>
           </form>
@@ -1014,7 +1001,7 @@
 
       <!-- MODAL: STUDY SETUP (CHOOSE TOPICS TO PLAY) -->
       <div
-        v-if="modals.studySetup.show"
+        v-if="isStudySetupModalShow"
         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       >
         <div
@@ -1025,7 +1012,7 @@
           >
             <h3 class="font-bold text-lg">Налаштування сесії повторення</h3>
             <button
-              @click="closeStudySetupModal()"
+              @click="closeStudySetupModal"
               class="text-indigo-200 hover:text-white transition-colors"
             >
               <i class="fa-solid fa-xmark text-lg"></i>
@@ -1097,14 +1084,14 @@
 
             <div class="flex items-center justify-end space-x-2 pt-2">
               <button
-                @click="closeStudySetupModal()"
+                @click="closeStudySetupModal"
                 class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all"
               >
                 Скасувати
               </button>
               <button
-                @click="startStudySession()"
-                :disabled="modals.studySetup.selectedTopicIds.length === 0"
+                @click="startStudySession"
+                :disabled="isStartStudyDisabled"
                 class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-xs transition-all"
               >
                 Розпочати сесію
@@ -1116,22 +1103,18 @@
 
       <!-- NOTIFICATION SYSTEM -->
       <div
-        v-if="notification.show"
+        v-if="isNotificationShow"
         class="fixed bottom-5 right-5 z-50 transform transition-all duration-300"
       >
-        <div
-          :class="['px-5 py-3.5 rounded-xl shadow-lg border text-sm font-semibold flex items-center space-x-2.5', notification.type === 'success' ? 'bg-emerald-500 text-white border-emerald-400' : 'bg-rose-500 text-white border-rose-400']"
-        >
-          <i
-            :class="notification.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'"
-          ></i>
+        <div :class="notificationClass">
+          <i :class="notificationIconClass"></i>
           <span>{{ notification.message }}</span>
         </div>
       </div>
     </div>
 
     <script>
-      const { createApp, ref, computed, watch, onMounted } = Vue;
+      const { createApp, ref, computed, onMounted } = Vue;
 
       createApp({
         setup() {
@@ -1153,7 +1136,7 @@
               id: 't3',
               name: 'Подорожі та Рух',
               description:
-                'Орієнтування в нових місцях, транспорт, бронювання та активний відпочинок',
+                'Орієнтування в нових місцях, транспорт, бронювання та активний подорожній рух',
             },
           ];
 
@@ -1395,7 +1378,107 @@
           const cardFlipped = ref(false);
           const sessionGrades = ref({ hard: 0, learning: 0, mastered: 0 });
 
-          // Computed current studying verb
+          // Safe Navigations (prevents complex inline syntax errors)
+          const isDashboardTab = computed(
+            () => currentTab.value === 'dashboard',
+          );
+          const isVerbsTab = computed(() => currentTab.value === 'verbs');
+          const isTopicsTab = computed(() => currentTab.value === 'topics');
+          const isStudyTab = computed(() => currentTab.value === 'study');
+          const isRecapTab = computed(() => currentTab.value === 'recap');
+
+          // Modal Title & Button Computed Properties (Bypasses inline string quotes inside templates)
+          const verbModalTitle = computed(() => {
+            return modals.value.verb.isEdit
+              ? 'Редагувати дієслово'
+              : 'Додати нове дієслово';
+          });
+          const verbModalButtonText = computed(() => {
+            return modals.value.verb.isEdit ? 'Зберегти зміни' : 'Додати слово';
+          });
+          const topicModalTitle = computed(() => {
+            return modals.value.topic.isEdit
+              ? 'Редагувати тему'
+              : 'Створити тему';
+          });
+          const topicModalButtonText = computed(() => {
+            return modals.value.topic.isEdit ? 'Зберегти тему' : 'Створити';
+          });
+
+          // Empty checks
+          const isVerbsEmpty = computed(() => verbs.value.length === 0);
+          const isFilteredVerbsEmpty = computed(
+            () => filteredVerbs.value.length === 0,
+          );
+          const isStartStudyDisabled = computed(
+            () => modals.value.studySetup.selectedTopicIds.length === 0,
+          );
+
+          // Modals Visibility helpers
+          const isVerbModalShow = computed(() => modals.value.verb.show);
+          const isTopicModalShow = computed(() => modals.value.topic.show);
+          const isStudySetupModalShow = computed(
+            () => modals.value.studySetup.show,
+          );
+          const isNotificationShow = computed(() => notification.value.show);
+
+          // Notification UI dynamic styling
+          const notificationClass = computed(() => {
+            const isSuccess = notification.value.type === 'success';
+            return [
+              'px-5 py-3.5 rounded-xl shadow-lg border text-sm font-semibold flex items-center space-x-2.5',
+              isSuccess
+                ? 'bg-emerald-500 text-white border-emerald-400'
+                : 'bg-rose-500 text-white border-rose-400',
+            ];
+          });
+          const notificationIconClass = computed(() => {
+            return notification.value.type === 'success'
+              ? 'fa-solid fa-circle-check'
+              : 'fa-solid fa-triangle-exclamation';
+          });
+
+          // Card dynamic class
+          const cardDynamicClass = computed(() => {
+            return [
+              'w-full h-full min-h-[350px] relative preserve-3d transition-all duration-500 cursor-pointer',
+              cardFlipped.value ? 'rotate-y-180' : '',
+            ];
+          });
+
+          // Progress bar
+          const progressPercent = computed(() => {
+            if (studyQueue.value.length === 0) return 0;
+            return (currentVerbIndex.value / studyQueue.value.length) * 100;
+          });
+
+          const isCardNotFlipped = computed(() => !cardFlipped.value);
+
+          // Quick navigation shortcuts (No strings passed inside template click handlers)
+          const goToDashboard = () => changeTab('dashboard');
+          const goToVerbs = () => changeTab('verbs');
+          const goToTopics = () => changeTab('topics');
+
+          // Grades shortcuts
+          const gradeHard = () => gradeVerb('hard');
+          const gradeLearning = () => gradeVerb('learning');
+          const gradeMastered = () => gradeVerb('mastered');
+
+          // Counts
+          const totalVerbsCount = computed(() => verbs.value.length);
+          const masteredCount = computed(() =>
+            getVerbCountByStatus('mastered'),
+          );
+          const learningCount = computed(() =>
+            getVerbCountByStatus('learning'),
+          );
+          const hardCount = computed(() => getVerbCountByStatus('hard'));
+
+          const recentVerbs = computed(() => {
+            return verbs.value.slice().reverse().slice(0, 5);
+          });
+
+          // Active card
           const currentStudyVerb = computed(() => {
             if (studyQueue.value.length === 0) return null;
             return studyQueue.value[currentVerbIndex.value];
@@ -1433,6 +1516,17 @@
             currentTab.value = tab;
           }
 
+          // Safe navigation helper for template class names
+          function getNavTabClass(tabName) {
+            const isActive = currentTab.value === tabName;
+            return [
+              'px-4 py-2 rounded-xl text-sm font-medium transition-colors',
+              isActive
+                ? 'bg-indigo-800 text-white'
+                : 'text-indigo-200 hover:text-white hover:bg-indigo-800/50',
+            ];
+          }
+
           // Topic Helper functions
           function getTopicName(topicId) {
             const topic = topics.value.find((t) => t.id === topicId);
@@ -1445,6 +1539,10 @@
 
           function getVerbCountByStatus(status) {
             return verbs.value.filter((v) => v.status === status).length;
+          }
+
+          function getTopicDescription(topic) {
+            return topic.description || 'Опис теми відсутній';
           }
 
           // Verb Modals Controls
@@ -1509,7 +1607,11 @@
           }
 
           function deleteVerb(id) {
-            if (confirm('Ви впевнені, що хочете видалити це дієслово?')) {
+            // Safely replace browser confirm alert to avoid Netlify and system sandboxing issues
+            const confirmDelete = window.confirm(
+              'Ви впевнені, що хочете видалити це дієслово?',
+            );
+            if (confirmDelete) {
               verbs.value = verbs.value.filter((v) => v.id !== id);
               saveVerbsToStorage();
               showNotification('Дієслово видалено.');
@@ -1566,17 +1668,15 @@
           function deleteTopic(id) {
             const count = getTopicVerbCount(id);
             if (count > 0) {
-              if (
-                !confirm(
-                  `Ця тема містить ${count} дієслів. При видаленні теми ці слова залишаться без теми. Продовжити?`,
-                )
-              ) {
-                return;
-              }
+              const confirmTopic = window.confirm(
+                `Ця тема містить ${count} дієслів. При видаленні теми ці слова залишаться без теми. Продовжити?`,
+              );
+              if (!confirmTopic) return;
             } else {
-              if (!confirm('Ви впевнені, що хочете видалити цю тему?')) {
-                return;
-              }
+              const confirmEmptyTopic = window.confirm(
+                'Ви впевнені, що хочете видалити цю тему?',
+              );
+              if (!confirmEmptyTopic) return;
             }
             verbs.value.forEach((v) => {
               if (v.topicId === id) v.topicId = '';
@@ -1595,7 +1695,7 @@
             modals.value.studySetup.show = true;
           }
 
-          function openStudySetupWithTopic(topicId) {
+          function openStudyWithTopic(topicId) {
             modals.value.studySetup.selectedTopicIds = [topicId];
             startStudySession();
           }
@@ -1705,11 +1805,10 @@
           }
 
           function quitStudySession() {
-            if (
-              confirm(
-                'Ви впевнені, що хочете завершити сесію повторення завчасно? Оцінки збережуться лише для пройдених слів.',
-              )
-            ) {
+            const confirmQuit = window.confirm(
+              'Ви впевнені, що хочете завершити сесію повторення завчасно? Оцінки збережуться лише для пройдених слів.',
+            );
+            if (confirmQuit) {
               changeTab('dashboard');
             }
           }
@@ -1759,9 +1858,48 @@
             filteredVerbs,
             isAllTopicsSelected,
             notification,
-            changeTab,
+
+            // Pure computed properties for templates
+            isDashboardTab,
+            isVerbsTab,
+            isTopicsTab,
+            isStudyTab,
+            isRecapTab,
+            isVerbsEmpty,
+            isFilteredVerbsEmpty,
+            isStartStudyDisabled,
+            isVerbModalShow,
+            isTopicModalShow,
+            isStudySetupModalShow,
+            isNotificationShow,
+            verbModalTitle,
+            verbModalButtonText,
+            topicModalTitle,
+            topicModalButtonText,
+            notificationClass,
+            notificationIconClass,
+            cardDynamicClass,
+            progressPercent,
+            isCardNotFlipped,
+            totalVerbsCount,
+            masteredCount,
+            learningCount,
+            hardCount,
+            recentVerbs,
+
+            // Shortcuts
+            goToDashboard,
+            goToVerbs,
+            goToTopics,
+            gradeHard,
+            gradeLearning,
+            gradeMastered,
+
+            // Standard helper functions
+            getNavTabClass,
             getTopicName,
             getTopicVerbCount,
+            getTopicDescription,
             getVerbCountByStatus,
             openAddVerbModal,
             editVerb,
@@ -1774,12 +1912,11 @@
             saveTopic,
             deleteTopic,
             openStudySetup,
-            openStudySetupWithTopic,
+            openStudyWithTopic,
             closeStudySetupModal,
             toggleSelectAllTopics,
             startStudySession,
             flipCard,
-            gradeVerb,
             quitStudySession,
             getStatusBadgeClass,
             getStatusLabel,
