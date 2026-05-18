@@ -1,4 +1,3 @@
-<!doctype html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
@@ -121,7 +120,7 @@
                 Прокачайте ваші Phrasal Verbs!
               </h1>
               <p class="text-indigo-100 text-base sm:text-lg mb-6">
-                Інтервальне повторення допоможе запам'ятати складні англійські
+                Інтервальне повторення допоможе запам’ятати складні англійські
                 дієслова назавжди. Оберіть теми та розпочніть нову сесію з 10
                 дієслів.
               </p>
@@ -243,7 +242,7 @@
                         {{ topic.name }}
                       </div>
                       <div class="text-xs text-slate-400 truncate">
-                        {{ topic.description || 'Без опису' }}
+                        {{ topic.description || "Без опису" }}
                       </div>
                     </div>
                   </div>
@@ -530,7 +529,7 @@
                 <p
                   class="text-sm text-slate-500 mt-2 line-clamp-2 min-h-[40px]"
                 >
-                  {{ topic.description || 'Немає опису для цієї теми' }}
+                  {{ topic.description || "Немає опису для цієї теми" }}
                 </p>
               </div>
 
@@ -566,7 +565,7 @@
           </div>
         </div>
 
-        <!-- ACTIVE STUDY SESSION (MODAL / FULL VIEW SIMULATION) -->
+        <!-- ACTIVE STUDY SESSION -->
         <div v-if="currentTab === 'study'" class="max-w-xl mx-auto space-y-6">
           <!-- Study Header -->
           <div class="flex items-center justify-between">
@@ -591,7 +590,10 @@
           </div>
 
           <!-- Active Card Container -->
-          <div class="perspective-1000 w-full min-h-[350px]">
+          <div
+            class="perspective-1000 w-full min-h-[350px]"
+            v-if="currentStudyVerb"
+          >
             <div
               :class="['w-full h-full min-h-[350px] relative preserve-3d transition-all duration-500 cursor-pointer', cardFlipped ? 'rotate-y-180' : '']"
               @click="flipCard()"
@@ -734,7 +736,7 @@
                   <span class="text-lg font-bold">🟢 Легко</span>
                   <span
                     class="text-[10px] text-emerald-500 font-medium text-center"
-                    >Пам'ятаю чудово</span
+                    >Пам’ятаю чудово</span
                   >
                 </button>
               </div>
@@ -905,7 +907,7 @@
                 class="text-xs font-bold text-slate-500 uppercase tracking-wider"
                 >Приклад речення (English)
                 <span class="text-slate-400 font-normal"
-                  >(необов'язково)</span
+                  >(необов’язково)</span
                 ></label
               >
               <textarea
@@ -1133,7 +1135,7 @@
 
       createApp({
         setup() {
-          // Mock / Initial Data
+          // Mock / Initial Data with safe Ukrainian curly apostrophes and correctly formatted JS strings
           const initialTopics = [
             {
               id: 't1',
@@ -1566,7 +1568,7 @@
             if (count > 0) {
               if (
                 !confirm(
-                  `Ця тема містить ${count} дієслів. При видаленні теми ці слова залишаться без теми (або ви можете видалити їх пізніше). Продовжити?`,
+                  `Ця тема містить ${count} дієслів. При видаленні теми ці слова залишаться без теми. Продовжити?`,
                 )
               ) {
                 return;
@@ -1576,7 +1578,6 @@
                 return;
               }
             }
-            // Update verbs belonging to deleted topic to be safe, or just clear reference
             verbs.value.forEach((v) => {
               if (v.topicId === id) v.topicId = '';
             });
@@ -1588,7 +1589,6 @@
 
           // Study Session Setup
           function openStudySetup() {
-            // Preselect all topics by default
             modals.value.studySetup.selectedTopicIds = topics.value.map(
               (t) => t.id,
             );
@@ -1625,7 +1625,6 @@
               return;
             }
 
-            // Get all verbs belonging to selected topics
             let pool = verbs.value.filter((v) =>
               selectedIds.includes(v.topicId),
             );
@@ -1638,14 +1637,7 @@
               return;
             }
 
-            // Spaced Repetition Selection Strategy:
-            // Weight scoring system:
-            // 1. Status 'hard' (high priority): weight = 3
-            // 2. Status 'new' (medium-high priority): weight = 2
-            // 3. Status 'learning' (medium priority): weight = 1.5
-            // 4. Status 'mastered' (low priority): weight = 0.5
-            // Shuffle with weighted probability, pick up to 10
-
+            // Spaced Repetition Priority Strategy:
             const getWeight = (status) => {
               switch (status) {
                 case 'hard':
@@ -1661,27 +1653,19 @@
               }
             };
 
-            // Add random noise so it's fresh but prioritised
             const scoredPool = pool.map((v) => ({
               verb: v,
               score: getWeight(v.status) * (0.6 + Math.random() * 0.8),
             }));
 
-            // Sort descending based on probability score
             scoredPool.sort((a, b) => b.score - a.score);
-
-            // Take up to 10 items
             const chosen = scoredPool.slice(0, 10).map((item) => item.verb);
-
-            // Final shuffle so they don't appear in exact priority order
             studyQueue.value = chosen.sort(() => Math.random() - 0.5);
 
-            // Initialize session state
             currentVerbIndex.value = 0;
             cardFlipped.value = false;
             sessionGrades.value = { hard: 0, learning: 0, mastered: 0 };
 
-            // Close Modal & Switch tab
             modals.value.studySetup.show = false;
             changeTab('study');
           }
@@ -1695,10 +1679,8 @@
             const currentVerb = currentStudyVerb.value;
             if (!currentVerb) return;
 
-            // Track Session grade statistics
             sessionGrades.value[grade]++;
 
-            // Update permanent verb interval states
             const index = verbs.value.findIndex((v) => v.id === currentVerb.id);
             if (index !== -1) {
               verbs.value[index].status = grade;
@@ -1707,18 +1689,14 @@
                 (verbs.value[index].repetitions || 0) + 1;
             }
 
-            // Save status
             saveVerbsToStorage();
 
-            // Advanced to next card or finish session
             if (currentVerbIndex.value + 1 < studyQueue.value.length) {
-              // Smooth transition reset
               cardFlipped.value = false;
               setTimeout(() => {
                 currentVerbIndex.value++;
               }, 250);
             } else {
-              // End of session, show Recap Screen
               cardFlipped.value = false;
               setTimeout(() => {
                 changeTab('recap');
