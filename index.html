@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
@@ -22,26 +22,21 @@
       body {
         font-family: 'Inter', sans-serif;
       }
-
       /* Custom Flashcard Flip Animations */
       .perspective-1000 {
         perspective: 1000px;
       }
-
       .preserve-3d {
         transform-style: preserve-3d;
       }
-
       .backface-hidden {
         backface-visibility: hidden;
       }
-
       .rotate-y-180 {
         transform: rotateY(180deg);
       }
     </style>
   </head>
-
   <body class="bg-slate-50 text-slate-800 min-h-screen">
     <div id="app" class="min-h-screen flex flex-col" v-cloak>
       <!-- Top Navigation -->
@@ -53,8 +48,8 @@
               class="flex items-center space-x-3 cursor-pointer"
               @click="goToDashboard"
             >
-              <div class="bg-indigo-500 p-2 rounded-xl text-white">
-                <i class="fa-solid fa-brain text-xl"></i>
+              <div class="bg-indigo-50/10 p-2 rounded-xl text-white">
+                <i class="fa-solid fa-brain text-xl text-indigo-200"></i>
               </div>
               <span
                 class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-200 to-white bg-clip-text text-transparent"
@@ -64,29 +59,33 @@
             </div>
             <!-- Nav Links -->
             <nav class="hidden md:flex space-x-1">
-              <button
-                @click="goToDashboard"
-                :class="getNavTabClass('dashboard')"
-              >
+              <button @click="goToDashboard" :class="dashboardTabClass">
                 <i class="fa-solid fa-house mr-2"></i>Панель
               </button>
-              <button @click="goToVerbs" :class="getNavTabClass('verbs')">
+              <button @click="goToVerbs" :class="verbsTabClass">
                 <i class="fa-solid fa-list mr-2"></i>Дієслова
               </button>
-              <button @click="goToTopics" :class="getNavTabClass('topics')">
+              <button @click="goToTopics" :class="topicsTabClass">
                 <i class="fa-solid fa-tags mr-2"></i>Теми
               </button>
             </nav>
-            <!-- Quick Stats -->
-            <div class="flex items-center space-x-2">
+            <!-- Quick Stats & Settings -->
+            <div class="flex items-center space-x-3">
               <span
-                class="bg-indigo-800/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-200 border border-indigo-700"
+                class="bg-indigo-800/80 px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-200 border border-indigo-700/50 hidden sm:inline-block"
               >
                 <i
                   class="fa-solid fa-graduation-cap text-indigo-400 mr-1.5"
                 ></i>
                 {{ totalVerbsCount }} дієслів
               </span>
+              <button
+                @click="openSettingsModal"
+                class="p-2 text-indigo-200 hover:text-white hover:bg-indigo-800/60 rounded-xl transition-all"
+                title="Налаштування та Синхронізація"
+              >
+                <i class="fa-solid fa-gear text-lg"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -580,7 +579,7 @@
           <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
             <div
               class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
-              :style="{ width: progressPercent + '%' }"
+              :style="progressStyle"
             ></div>
           </div>
 
@@ -1035,7 +1034,7 @@
                     type="checkbox"
                     :checked="isAllTopicsSelected"
                     @change="toggleSelectAllTopics"
-                    class="w-4.5 h-4.5 text-indigo-600 rounded focus:ring-indigo-500"
+                    class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                   />
                   <span class="text-sm font-semibold text-slate-700"
                     >Обрати всі теми</span
@@ -1052,7 +1051,7 @@
                     type="checkbox"
                     v-model="modals.studySetup.selectedTopicIds"
                     :value="t.id"
-                    class="w-4.5 h-4.5 text-indigo-600 rounded focus:ring-indigo-500"
+                    class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                   />
                   <div class="flex justify-between items-center w-full pr-1">
                     <span class="text-sm text-slate-700 font-medium"
@@ -1075,9 +1074,10 @@
               <div class="flex items-start space-x-2.5">
                 <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5"></i>
                 <p class="text-xs text-indigo-950 font-medium leading-relaxed">
-                  Система автоматично підготує **до 10 фразових дієслів** у
-                  випадковому порядку. Пріоритет віддається дієсловам, з якими у
-                  вас виникали проблеми, або які ви ще не вивчали.
+                  Система автоматично підготує
+                  <strong>до 10 фразових дієслів</strong> у випадковому порядку.
+                  Пріоритет віддається дієсловам, з якими у вас виникали
+                  проблеми, або які ви ще не вивчали.
                 </p>
               </div>
             </div>
@@ -1101,6 +1101,143 @@
         </div>
       </div>
 
+      <!-- MODAL: SETTINGS & BACKUP (SYNCHRONIZATION) -->
+      <div
+        v-if="modals.settings.show"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden transform transition-all"
+        >
+          <div
+            class="bg-indigo-900 text-white px-6 py-4 flex items-center justify-between"
+          >
+            <h3 class="font-bold text-lg">⚙️ Налаштування та Синхронізація</h3>
+            <button
+              @click="closeSettingsModal"
+              class="text-indigo-200 hover:text-white transition-colors"
+            >
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <!-- Backup Intro -->
+            <div class="space-y-2">
+              <h4
+                class="font-bold text-sm text-slate-800 uppercase tracking-wide"
+              >
+                Резервне копіювання (JSON)
+              </h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Ви можете перенести свої збережені дієслова та прогрес на інший
+                телефон, комп’ютер або інший браузер. Експортуйте дані у файл та
+                імпортуйте їх на новому пристрої.
+              </p>
+            </div>
+
+            <!-- Backup Actions -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Export button -->
+              <button
+                @click="exportData"
+                class="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 rounded-2xl transition-all space-y-2"
+              >
+                <i class="fa-solid fa-file-export text-2xl"></i>
+                <span class="text-xs font-bold">Скачати файл</span>
+              </button>
+              <!-- Import button -->
+              <button
+                @click="triggerImport"
+                class="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-100 rounded-2xl transition-all space-y-2"
+              >
+                <i class="fa-solid fa-file-import text-2xl"></i>
+                <span class="text-xs font-bold">Завантажити файл</span>
+              </button>
+              <!-- Hidden file input for import -->
+              <input
+                type="file"
+                ref="fileInput"
+                @change="importData"
+                accept=".json"
+                class="hidden"
+              />
+            </div>
+
+            <!-- Reset Data Block -->
+            <div class="pt-4 border-t border-slate-100 space-y-2">
+              <h4
+                class="font-bold text-sm text-slate-800 uppercase tracking-wide text-rose-700"
+              >
+                Зона ризику
+              </h4>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Скидання видалить усі ваші власні дієслова, теми та прогрес
+                вивчення, повернувши додаток до початкового стану.
+              </p>
+              <button
+                @click="resetAppData"
+                class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2"
+              >
+                <i class="fa-solid fa-trash-arrow-up"></i>
+                <span>Очистити та скинути додаток</span>
+              </button>
+            </div>
+
+            <div class="flex items-center justify-end pt-2">
+              <button
+                @click="closeSettingsModal"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all"
+              >
+                Закрити
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOM CONFIRMATION MODAL (Replaces window.confirm strictly) -->
+      <div
+        v-if="modals.confirm.show"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all duration-300"
+        >
+          <div class="p-6 text-center space-y-4">
+            <div
+              class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto border border-amber-100"
+            >
+              <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-bold text-lg text-slate-900">
+                {{ modals.confirm.title }}
+              </h3>
+              <p class="text-sm text-slate-500 leading-relaxed">
+                {{ modals.confirm.message }}
+              </p>
+            </div>
+          </div>
+          <div
+            class="bg-slate-50 px-6 py-4 flex items-center justify-end space-x-2 border-t border-slate-100"
+          >
+            <button
+              @click="closeConfirmModal"
+              class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-xs transition-colors"
+            >
+              Скасувати
+            </button>
+            <button
+              @click="modals.confirm.onConfirm"
+              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition-colors"
+            >
+              Підтвердити
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- NOTIFICATION SYSTEM -->
       <div
         v-if="isNotificationShow"
@@ -1118,6 +1255,15 @@
 
       createApp({
         setup() {
+          // Tailwind design tokens declared in standard variables
+          const activeTabClass =
+            'px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-indigo-800 text-white';
+          const inactiveTabClass =
+            'px-4 py-2 rounded-xl text-sm font-medium transition-colors text-indigo-200 hover:text-white hover:bg-indigo-800/50';
+
+          // HTML References
+          const fileInput = ref(null);
+
           // Mock / Initial Data with safe Ukrainian curly apostrophes and correctly formatted JS strings
           const initialTopics = [
             {
@@ -1187,7 +1333,7 @@
               translation: 'виходити гуляти, проводити час поза домом',
               topicId: 't1',
               status: 'new',
-              example: "Let's go out for dinner tonight.",
+              example: 'Let’s go out for dinner tonight.',
               lastReviewed: null,
               repetitions: 0,
             },
@@ -1303,6 +1449,10 @@
 
           // Load from Local Storage or fallback
           onMounted(() => {
+            loadAppData();
+          });
+
+          function loadAppData() {
             const savedTopics = localStorage.getItem('vi_topics');
             const savedVerbs = localStorage.getItem('vi_verbs');
 
@@ -1319,7 +1469,7 @@
               verbs.value = initialVerbs;
               saveVerbsToStorage();
             }
-          });
+          }
 
           // LocalStorage Helpers
           function saveTopicsToStorage() {
@@ -1370,6 +1520,15 @@
               show: false,
               selectedTopicIds: [],
             },
+            settings: {
+              show: false,
+            },
+            confirm: {
+              show: false,
+              title: '',
+              message: '',
+              onConfirm: null,
+            },
           });
 
           // Active Quiz / Study Queue
@@ -1386,6 +1545,23 @@
           const isTopicsTab = computed(() => currentTab.value === 'topics');
           const isStudyTab = computed(() => currentTab.value === 'study');
           const isRecapTab = computed(() => currentTab.value === 'recap');
+
+          // Avoid inline quote rendering by converting tab navigation classes to computed
+          const dashboardTabClass = computed(() => {
+            return currentTab.value === 'dashboard'
+              ? activeTabClass
+              : inactiveTabClass;
+          });
+          const verbsTabClass = computed(() => {
+            return currentTab.value === 'verbs'
+              ? activeTabClass
+              : inactiveTabClass;
+          });
+          const topicsTabClass = computed(() => {
+            return currentTab.value === 'topics'
+              ? activeTabClass
+              : inactiveTabClass;
+          });
 
           // Modal Title & Button Computed Properties (Bypasses inline string quotes inside templates)
           const verbModalTitle = computed(() => {
@@ -1446,15 +1622,18 @@
             ];
           });
 
-          // Progress bar
+          // Progress bar style computed inside Javascript to completely bypass HTML expression parsing
           const progressPercent = computed(() => {
             if (studyQueue.value.length === 0) return 0;
             return (currentVerbIndex.value / studyQueue.value.length) * 100;
           });
+          const progressStyle = computed(() => {
+            return { width: progressPercent.value + '%' };
+          });
 
           const isCardNotFlipped = computed(() => !cardFlipped.value);
 
-          // Quick navigation shortcuts (No strings passed inside template click handlers)
+          // Quick navigation shortcuts
           const goToDashboard = () => changeTab('dashboard');
           const goToVerbs = () => changeTab('verbs');
           const goToTopics = () => changeTab('topics');
@@ -1516,17 +1695,6 @@
             currentTab.value = tab;
           }
 
-          // Safe navigation helper for template class names
-          function getNavTabClass(tabName) {
-            const isActive = currentTab.value === tabName;
-            return [
-              'px-4 py-2 rounded-xl text-sm font-medium transition-colors',
-              isActive
-                ? 'bg-indigo-800 text-white'
-                : 'text-indigo-200 hover:text-white hover:bg-indigo-800/50',
-            ];
-          }
-
           // Topic Helper functions
           function getTopicName(topicId) {
             const topic = topics.value.find((t) => t.id === topicId);
@@ -1543,6 +1711,21 @@
 
           function getTopicDescription(topic) {
             return topic.description || 'Опис теми відсутній';
+          }
+
+          // Custom Confirm Helper (Replaces window.confirm completely)
+          function triggerConfirm(title, message, callback) {
+            modals.value.confirm.title = title;
+            modals.value.confirm.message = message;
+            modals.value.confirm.onConfirm = () => {
+              callback();
+              modals.value.confirm.show = false;
+            };
+            modals.value.confirm.show = true;
+          }
+
+          function closeConfirmModal() {
+            modals.value.confirm.show = false;
           }
 
           // Verb Modals Controls
@@ -1567,6 +1750,114 @@
 
           function closeVerbModal() {
             modals.value.verb.show = false;
+          }
+
+          // Settings Modal Controls
+          function openSettingsModal() {
+            modals.value.settings.show = true;
+          }
+
+          function closeSettingsModal() {
+            modals.value.settings.show = false;
+          }
+
+          // Export to JSON File
+          function exportData() {
+            try {
+              const payload = {
+                app: 'VerboInterval',
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                topics: topics.value,
+                verbs: verbs.value,
+              };
+              const jsonString = JSON.stringify(payload, null, 2);
+              const blob = new Blob([jsonString], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'verbo_interval_backup.json';
+              document.body.appendChild(link);
+              link.click();
+
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              showNotification('Файл резервної копії успішно скачано!');
+            } catch (e) {
+              showNotification('Не вдалося експортувати дані', 'error');
+            }
+          }
+
+          // Trigger hidden input click
+          function triggerImport() {
+            if (fileInput.value) {
+              fileInput.value.click();
+            }
+          }
+
+          // Parse and Import JSON Backup File
+          function importData(event) {
+            const targetFile = event.target.files[0];
+            if (!targetFile) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              try {
+                const parsedData = JSON.parse(e.target.result);
+
+                // Validation checks
+                if (
+                  !parsedData.topics ||
+                  !parsedData.verbs ||
+                  !Array.isArray(parsedData.topics) ||
+                  !Array.isArray(parsedData.verbs)
+                ) {
+                  showNotification(
+                    'Помилка: Неправильний формат резервної копії!',
+                    'error',
+                  );
+                  return;
+                }
+
+                triggerConfirm(
+                  'Імпортувати дані?',
+                  'Це замінить ваші поточні дієслова та теми даними з файлу. Продовжити?',
+                  () => {
+                    topics.value = parsedData.topics;
+                    verbs.value = parsedData.verbs;
+                    saveTopicsToStorage();
+                    saveVerbsToStorage();
+                    showNotification('Усі дані успішно імпортовано!');
+                    closeSettingsModal();
+                  },
+                );
+              } catch (err) {
+                showNotification(
+                  'Не вдалося зчитати файл: Пошкоджений JSON',
+                  'error',
+                );
+              }
+            };
+            reader.readAsText(targetFile);
+            // Reset file input value so same file can be imported again
+            event.target.value = '';
+          }
+
+          // Completely Reset Application Data
+          function resetAppData() {
+            triggerConfirm(
+              'Повне очищення',
+              'Ви дійсно хочете повністю видалити всі дієслова, теми та очистити статистику прогресу? Цю дію неможливо скасувати.',
+              () => {
+                localStorage.removeItem('vi_topics');
+                localStorage.removeItem('vi_verbs');
+                loadAppData();
+                showNotification('Додаток скинуто до початкових параметрів!');
+                closeSettingsModal();
+                changeTab('dashboard');
+              },
+            );
           }
 
           function saveVerb() {
@@ -1607,15 +1898,15 @@
           }
 
           function deleteVerb(id) {
-            // Safely replace browser confirm alert to avoid Netlify and system sandboxing issues
-            const confirmDelete = window.confirm(
-              'Ви впевнені, що хочете видалити це дієслово?',
+            triggerConfirm(
+              'Видалення дієслова',
+              'Ви впевнені, що хочете остаточно видалити це дієслово з бібліотеки?',
+              () => {
+                verbs.value = verbs.value.filter((v) => v.id !== id);
+                saveVerbsToStorage();
+                showNotification('Дієслово видалено.');
+              },
             );
-            if (confirmDelete) {
-              verbs.value = verbs.value.filter((v) => v.id !== id);
-              saveVerbsToStorage();
-              showNotification('Дієслово видалено.');
-            }
           }
 
           // Topic Modals Controls
@@ -1668,23 +1959,32 @@
           function deleteTopic(id) {
             const count = getTopicVerbCount(id);
             if (count > 0) {
-              const confirmTopic = window.confirm(
-                `Ця тема містить ${count} дієслів. При видаленні теми ці слова залишаться без теми. Продовжити?`,
+              triggerConfirm(
+                'Видалення теми',
+                'Ця тема містить ' +
+                  count +
+                  ' дієслів. При її видаленні ці слова залишаться без теми. Продовжити?',
+                () => {
+                  verbs.value.forEach((v) => {
+                    if (v.topicId === id) v.topicId = '';
+                  });
+                  topics.value = topics.value.filter((t) => t.id !== id);
+                  saveTopicsToStorage();
+                  saveVerbsToStorage();
+                  showNotification('Тему видалено.');
+                },
               );
-              if (!confirmTopic) return;
             } else {
-              const confirmEmptyTopic = window.confirm(
-                'Ви впевнені, що хочете видалити цю тему?',
+              triggerConfirm(
+                'Видалення теми',
+                'Ви впевнені, що хочете видалити цю порожню тему?',
+                () => {
+                  topics.value = topics.value.filter((t) => t.id !== id);
+                  saveTopicsToStorage();
+                  showNotification('Тему видалено.');
+                },
               );
-              if (!confirmEmptyTopic) return;
             }
-            verbs.value.forEach((v) => {
-              if (v.topicId === id) v.topicId = '';
-            });
-            topics.value = topics.value.filter((t) => t.id !== id);
-            saveTopicsToStorage();
-            saveVerbsToStorage();
-            showNotification('Тему видалено.');
           }
 
           // Study Session Setup
@@ -1805,12 +2105,13 @@
           }
 
           function quitStudySession() {
-            const confirmQuit = window.confirm(
-              'Ви впевнені, що хочете завершити сесію повторення завчасно? Оцінки збережуться лише для пройдених слів.',
+            triggerConfirm(
+              'Завершити сесію?',
+              'Ви впевнені, що хочете достроково припинити тренування? Вже оцінені картки збережуть свій новий статус.',
+              () => {
+                changeTab('dashboard');
+              },
             );
-            if (confirmQuit) {
-              changeTab('dashboard');
-            }
           }
 
           // Styling Helpers
@@ -1858,6 +2159,7 @@
             filteredVerbs,
             isAllTopicsSelected,
             notification,
+            fileInput,
 
             // Pure computed properties for templates
             isDashboardTab,
@@ -1879,13 +2181,18 @@
             notificationClass,
             notificationIconClass,
             cardDynamicClass,
-            progressPercent,
+            progressStyle,
             isCardNotFlipped,
             totalVerbsCount,
             masteredCount,
             learningCount,
             hardCount,
             recentVerbs,
+
+            // Computed styles and classes to bypass template literal parsing
+            dashboardTabClass,
+            verbsTabClass,
+            topicsTabClass,
 
             // Shortcuts
             goToDashboard,
@@ -1896,7 +2203,6 @@
             gradeMastered,
 
             // Standard helper functions
-            getNavTabClass,
             getTopicName,
             getTopicVerbCount,
             getTopicDescription,
@@ -1920,6 +2226,15 @@
             quitStudySession,
             getStatusBadgeClass,
             getStatusLabel,
+            closeConfirmModal,
+
+            // Settings, Import & Export
+            openSettingsModal,
+            closeSettingsModal,
+            exportData,
+            triggerImport,
+            importData,
+            resetAppData,
           };
         },
       }).mount('#app');
